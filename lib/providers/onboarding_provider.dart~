@@ -1,0 +1,39 @@
+import 'package:flutter/material.dart';
+import '../controllers/onboarding_controller.dart';
+
+class OnboardingProvider with ChangeNotifier {
+  final OnboardingController _controller;
+  bool _isFirstTimeUser = true;
+
+  OnboardingProvider(this._controller);
+
+  bool get isFirstTimeUser => _isFirstTimeUser;
+
+  // Check if it's the first time the user is opening the app
+  Future<void> checkFirstTimeUser() async {
+    try {
+      final hasSeenOnboarding = await _controller.hasSeenOnboarding();
+      if (hasSeenOnboarding != _isFirstTimeUser) {
+        _isFirstTimeUser = !hasSeenOnboarding;
+        notifyListeners();
+      }
+    } catch (e) {
+      // Handle the error
+      print('Error checking first time user: $e');
+    }
+  }
+
+  // Complete the onboarding process
+  Future<void> completeOnboarding() async {
+    try {
+      await _controller.setSeenOnboarding();
+      if (_isFirstTimeUser) {
+        _isFirstTimeUser = false;
+        notifyListeners();
+      }
+    } catch (e) {
+      // Handle the error
+      print('Error completing onboarding: $e');
+    }
+  }
+}

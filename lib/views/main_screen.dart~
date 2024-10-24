@@ -1,0 +1,23 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../Controllers/onboarding_controller.dart';
+import '../providers/onboarding_provider.dart';
+
+class MainScreen extends StatelessWidget {
+  const MainScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => OnboardingProvider(),
+        ),
+      ],
+      child: MaterialApp(
+        // ...
+      ),
+    );
+  }
+}

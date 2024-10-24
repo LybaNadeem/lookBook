@@ -1,0 +1,370 @@
+//
+//
+//
+//
+// import 'package:flutter/material.dart';
+// import 'package:flutter_svg/flutter_svg.dart'; // Import the flutter_svg package
+// import 'package:firebase_storage/firebase_storage.dart'; // Firebase Storage package
+// import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore package
+// import 'package:image_picker/image_picker.dart'; // Image Picker package
+// import 'dart:io'; // For handling files
+//
+// class AddProduct2 extends StatefulWidget {
+//   @override
+//   _AddProduct2State createState() => _AddProduct2State();
+// }
+//
+// class _AddProduct2State extends State<AddProduct2> {
+//   final List<String> categories = ['Dresses', 'Shoes', 'Jackets']; // List of categories
+//   String? selectedCategory; // Variable to store the selected category
+//   TextEditingController dressTitleController = TextEditingController(); // Controller for Dress Title
+//   TextEditingController priceController = TextEditingController(); // Controller for Price
+//   TextEditingController projectDescriptionController = TextEditingController(); // Controller for Project Description
+//   TextEditingController colorsController = TextEditingController(); // Controller for Colors
+//   TextEditingController sizesController = TextEditingController(); // Controller for Sizes
+//
+//   // Variables for image selection and storage
+//   File? _imageFile;
+//   String? _imageUrl; // To store the uploaded image URL
+//   final ImagePicker _picker = ImagePicker();
+//
+//   // Function to pick an image
+//   Future<void> _pickImage() async {
+//     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+//     if (pickedFile != null) {
+//       setState(() {
+//         _imageFile = File(pickedFile.path);
+//       });
+//       print('Image picked: ${pickedFile.path}');
+//       await _uploadImageToFirebase(_imageFile!);
+//     } else {
+//       print('No image selected.');
+//     }
+//   }
+//
+//   Future<void> _uploadImageToFirebase(File imageFile) async {
+//     try {
+//       String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.png'; // Create a unique file name
+//       UploadTask uploadTask = FirebaseStorage.instance.ref(fileName).putFile(imageFile); // Upload file
+//       TaskSnapshot snapshot = await uploadTask;
+//
+//       // Ensure the upload is completed before getting the download URL
+//       if (snapshot.state == TaskState.success) {
+//         String downloadUrl = await snapshot.ref.getDownloadURL(); // Get download URL
+//         setState(() {
+//           _imageUrl = downloadUrl; // Store the URL
+//         });
+//         print('Image uploaded successfully: $_imageUrl'); // Debug print
+//       } else {
+//         print('Upload failed with state: ${snapshot.state}'); // Debug print
+//       }
+//     } catch (e) {
+//       print('Error uploading image: $e'); // Print error message
+//     }
+//   }
+//
+//   // Function to submit the data to Firestore
+//   Future<void> _submitData() async {
+//     // Debug print statements
+//     print('Selected Category: $selectedCategory');
+//     print('Dress Title: ${dressTitleController.text}');
+//     print('Price: ${priceController.text}');
+//     print('Image URL: $_imageUrl');
+//
+//     if (selectedCategory == null ||
+//         dressTitleController.text.isEmpty ||
+//         priceController.text.isEmpty ||
+//         _imageUrl == null) {
+//       // Show an error message if validation fails
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text('Please fill all fields and upload an image.')),
+//       );
+//       return;
+//     }
+//
+//     try {
+//       // Add data to Firestore
+//       await FirebaseFirestore.instance.collection('products').add({
+//         'category': selectedCategory,
+//         'dressTitle': dressTitleController.text,
+//         'price': double.parse(priceController.text), // Convert price to double
+//         'description': projectDescriptionController.text,
+//         'imageUrl': _imageUrl, // Use the URL obtained from image upload
+//         'colors': colorsController.text, // Adding colors field
+//         'sizes': sizesController.text, // Adding sizes field
+//       });
+//
+//       // Show success message
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text('Product added successfully!')),
+//       );
+//
+//       // Clear the form after submission
+//       dressTitleController.clear();
+//       priceController.clear();
+//       projectDescriptionController.clear();
+//       colorsController.clear();
+//       sizesController.clear();
+//       setState(() {
+//         selectedCategory = null;
+//         _imageFile = null;
+//         _imageUrl = null; // Reset _imageUrl as well
+//       });
+//     } catch (e) {
+//       print('Error adding product: $e');
+//       // Show error message
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text('Failed to add product: $e')),
+//       );
+//     }
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('LOOK BOOK'), // AppBar title for AddProduct2
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0), // Add padding for aesthetics
+//         child: SingleChildScrollView(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start, // Align items to start
+//             children: [
+//               Padding(
+//                 padding: const EdgeInsets.symmetric(horizontal: 60),
+//                 child: Column(
+//                   children: [
+//                     // Title below AppBar
+//                     Container(
+//                       margin: EdgeInsets.only(bottom: 5), // Positioning from the bottom
+//                       child: Text(
+//                         'ADD PRODUCT 2',
+//                         style: TextStyle(fontSize: 24),
+//                       ),
+//                     ),
+//                     SizedBox(height: 20), // Space between title and image
+//
+//                     // Image upload and display section
+//                     GestureDetector(
+//                       onTap: _pickImage, // Pick image when tapped
+//                       child: _imageFile == null
+//                           ? Column(
+//                         children: [
+//                           SvgPicture.asset(
+//                             'assets/icons/add product images.svg', // Update with your SVG path
+//                             width: 272,
+//                             height: 240,
+//                           ),
+//                           Text('Tap to upload image'),
+//                         ],
+//                       )
+//                           : Column(
+//                         children: [
+//                           Image.file(
+//                             _imageFile!,
+//                             width: 272,
+//                             height: 240,
+//                           ),
+//                           SizedBox(height: 10),
+//                           Text('Image uploaded!'),
+//                         ],
+//                       ),
+//                     ),
+//                     // Show the uploaded image from Firebase
+//                     if (_imageUrl != null)
+//                       Column(
+//                         children: [
+//                           SizedBox(height: 20),
+//                           Image.network(
+//                             _imageUrl!,
+//                             width: 272,
+//                             height: 240,
+//                             fit: BoxFit.cover,
+//                           ),
+//                           SizedBox(height: 20),
+//                         ],
+//                       ),
+//                   ],
+//                 ),
+//               ),
+//               Text(
+//                 'Category',
+//                 style: TextStyle(fontSize: 16), // Style for the category label
+//                 textAlign: TextAlign.left, // Align text to the left
+//               ),
+//               SizedBox(height: 10), // Space after the category label
+//
+//               // Category Dropdown with options
+//               DropdownButtonFormField<String>(
+//                 style: TextStyle(fontSize: 16),
+//                 hint: Text('Select Category'), // Hint text for the dropdown
+//                 decoration: InputDecoration(
+//                   border: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(30), // Rounded corners
+//                   ),
+//                   contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20), // Padding inside the dropdown
+//                 ),
+//                 items: categories.map((String category) {
+//                   return DropdownMenuItem<String>(
+//                     value: category,
+//                     child: Text(
+//                       category,
+//                       style: TextStyle(
+//                         color: Colors.black, // Set the text color to black
+//                       ),
+//                     ), // Display category in the dropdown
+//                   );
+//                 }).toList(),
+//                 onChanged: (String? newValue) {
+//                   setState(() {
+//                     selectedCategory = newValue; // Update selected category
+//                   });
+//                 },
+//                 isExpanded: true, // Make the dropdown full width
+//                 value: selectedCategory, // Set the initial value to the selected category
+//               ),
+//               SizedBox(height: 30), // Space after the dropdown
+//
+//               // Row with "Add Category" Text and SVG Icon
+//               Row(
+//                 children: [
+//                   Text(
+//                     'Add Category', // Add category text
+//                     style: TextStyle(
+//                       fontSize: 15, // Text size
+//                     ),
+//                   ),
+//                   SizedBox(width: 10), // Space between text and icon
+//
+//                   // SVG Icon next to the text
+//                   SvgPicture.asset(
+//                     'assets/icons/Vector.svg', // Update with your SVG icon path
+//                     height: 15, // Set icon height
+//                     width: 15, // Set icon width
+//                   ),
+//                 ],
+//               ),
+//
+//               SizedBox(height: 20), // Space after the add category
+//
+//               // Dress Title TextField
+//               Text(
+//                 'Dress Title',
+//                 style: TextStyle(fontSize: 16), // Style for the Dress Title label
+//               ),
+//               SizedBox(height: 10),
+//               TextField(
+//                 controller: dressTitleController, // Controller for Dress Title
+//                 decoration: InputDecoration(
+//                   hintText: 'Type',
+//                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+//                   border: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(30),
+//                   ),
+//                   contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+//                 ),
+//               ),
+//               SizedBox(height: 30),
+//
+//               // Price TextField
+//               Text(
+//                 'Price',
+//                 style: TextStyle(fontSize: 16),
+//               ),
+//               SizedBox(height: 10),
+//               TextField(
+//                 controller: priceController, // Controller for Price
+//                 keyboardType: TextInputType.number, // Specify number input
+//                 decoration: InputDecoration(
+//                   hintText: 'Enter Price',
+//                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+//                   border: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(30),
+//                   ),
+//                   contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+//                 ),
+//               ),
+//               SizedBox(height: 30),
+//
+//               // Project Description TextField
+//               Text(
+//                 'Project Description',
+//                 style: TextStyle(fontSize: 16),
+//               ),
+//               SizedBox(height: 10),
+//               TextField(
+//                 controller: projectDescriptionController, // Controller for Description
+//                 maxLines: 3, // Multi-line input
+//                 decoration: InputDecoration(
+//                   hintText: 'Type Project Description',
+//                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+//                   border: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(30),
+//                   ),
+//                   contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+//                 ),
+//               ),
+//               SizedBox(height: 30),
+//
+//               // Colors TextField
+//               Text(
+//                 'Colors',
+//                 style: TextStyle(fontSize: 16),
+//               ),
+//               SizedBox(height: 10),
+//               TextField(
+//                 controller: colorsController, // Controller for Colors
+//                 decoration: InputDecoration(
+//                   hintText: 'Enter Colors',
+//                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+//                   border: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(30),
+//                   ),
+//                   contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+//                 ),
+//               ),
+//               SizedBox(height: 30),
+//
+//               // Sizes TextField
+//               Text(
+//                 'Sizes',
+//                 style: TextStyle(fontSize: 16),
+//               ),
+//               SizedBox(height: 10),
+//               TextField(
+//                 controller: sizesController, // Controller for Sizes
+//                 decoration: InputDecoration(
+//                   hintText: 'Enter Sizes',
+//                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+//                   border: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(30),
+//                   ),
+//                   contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+//                 ),
+//               ),
+//               SizedBox(height: 40), // Space before the submit button
+//
+//               // Submit Button to Add Product
+//               ElevatedButton(
+//                 onPressed: _submitData, // Submit data on press
+//                 child: Padding(
+//                   padding: const EdgeInsets.symmetric(vertical: 16.0),
+//                   child: Text(
+//                     'Submit', // Button text
+//                     style: TextStyle(fontSize: 18), // Set button text size
+//                   ),
+//                 ),
+//                 style: ElevatedButton.styleFrom(
+//                   shape: RoundedRectangleBorder(
+//                     borderRadius: BorderRadius.circular(30), // Rounded button
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

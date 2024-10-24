@@ -1,0 +1,28 @@
+import 'package:flutter/material.dart';
+import '../controllers/auth_controller.dart';
+
+class AuthProvider with ChangeNotifier {
+  final AuthController _controller = AuthController();
+  User? _user;
+
+  User? get user => _user;
+
+  // Sign in method
+  Future<void> signIn(String email, String password) async {
+    _user = await _controller.signInWithEmail(email, password);
+    notifyListeners();
+  }
+
+  // Sign up method
+  Future<void> signUp(String email, String password) async {
+    _user = await _controller.signUpWithEmail(email, password);
+    notifyListeners();
+  }
+
+  // Sign out method
+  Future<void> signOut() async {
+    await _controller.signOut();
+    _user = null;
+    notifyListeners();
+  }
+}

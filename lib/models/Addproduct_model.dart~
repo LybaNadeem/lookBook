@@ -1,0 +1,23 @@
+class AddProductModel {
+  String? id;
+  String? title;
+  List<String>? categories;
+  String?
+  AddProductModel({
+    this.id,
+    required this.title,
+    this.categories,
+  });
+  AddProductModel.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    title = json['title'];
+    categories = json['categories'].cast<String>();
+  }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['title'] = this.title;
+    data['categories'] = this.categories;
+    return data;
+  }
+}

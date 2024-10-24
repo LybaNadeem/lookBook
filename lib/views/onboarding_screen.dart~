@@ -1,0 +1,66 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled/models/onboarding_model.dart';
+import '../providers/onboarding_provider.dart';
+
+class OnboardingScreen extends StatelessWidget {
+  final List<OnboardingModel> slides = [
+    OnboardingModel(
+      imagePath: 'assets/slide1.png',
+      title: 'Welcome',
+      description: 'This is the first slide of your app.',
+    ),
+    OnboardingModel(
+      imagePath: 'assets/slide2.png',
+      title: 'Organize',
+      description: 'Keep your life organized with our app.',
+    ),
+    OnboardingModel(
+      imagePath: 'assets/slide3.png',
+      title: 'Get Started',
+      description: 'Get started with the app now!',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          Expanded(
+            child: PageView.builder(
+              itemCount: slides.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(slides[index].imagePath), // Image for the slide
+                    SizedBox(height: 20),
+                    Text(
+                      slides[index].title,
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      slides[index].description,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // Complete onboarding and navigate to the main screen
+              context.read<OnboardingProvider>().completeOnboarding();
+              Navigator.pushReplacementNamed(context, '/main');
+            },
+            child: Text("Get Started"),
+          ),
+        ],
+      ),
+    );
+  }
+}
