@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'Add_product1.dart';
+import 'Logout.dart';
 import 'MessageApp.dart';
+import 'ProfileScreen.dart';
+ // Import the ProfileScreen file
 
 class HomePage extends StatefulWidget {
   @override
@@ -32,6 +35,11 @@ class _HomePageState extends State<HomePage> {
         context,
         MaterialPageRoute(builder: (context) => MessagesApp()), // Navigate to ChatScreen
       );
+    } else if (index == 3) { // Assuming the profile icon is at index 3
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ProfileScreen()), // Navigate to ProfileScreen
+      );
     }
   }
 
@@ -41,17 +49,23 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.black),
-          onPressed: () {
-            // Add your drawer opening functionality
-          },
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu, color: Colors.black),
+            onPressed: () {
+              // Replace Scaffold.of(context).openDrawer() with navigation to LogoutPage
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LogoutPage()),
+              );
+            },
+          ),
         ),
         centerTitle: true,
-        title:
-        Text("LOOK\n      BOOK",
-            style: TextStyle(
-                fontFamily: 'Agne', fontWeight: FontWeight.bold)),
+        title: Text(
+          "LOOK\n      BOOK",
+          style: TextStyle(fontFamily: 'Agne', fontWeight: FontWeight.bold),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -119,10 +133,18 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Add your functionality
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddProduct1()), // Navigate to AddProduct1
+          );
         },
-        backgroundColor:Color(0xFFE47F46),
-        child: Icon(Icons.add),
+        backgroundColor: Color(0xFFE47F46), // Set background color to your desired color
+        child: Icon(
+          Icons.add, // Add a "+" icon
+          color: Colors.white, // Set the color of the "+" icon to white
+          size: 30.0, // You can adjust the size of the "+" icon if needed
+        ),
+        shape: CircleBorder(), // Ensure the button is circular
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

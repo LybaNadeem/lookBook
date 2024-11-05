@@ -14,11 +14,11 @@ class AddPhotographer extends StatefulWidget {
 }
 
 class _AddPhotographerState extends State<AddPhotographer> {
-  // For handling files
-  TextEditingController PhotographerNameController = TextEditingController();
-  TextEditingController SocialLinkController = TextEditingController();
-  TextEditingController PhoneController = TextEditingController();
-  TextEditingController EmailController = TextEditingController();
+  // Controllers
+  TextEditingController photographerNameController = TextEditingController();
+  TextEditingController socialLinkController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
 
   User? currentUser = FirebaseAuth.instance.currentUser;
   File? _imageFile;
@@ -60,10 +60,10 @@ class _AddPhotographerState extends State<AddPhotographer> {
       );
       return;
     }
-    if (PhotographerNameController.text.isEmpty ||
-        SocialLinkController.text.isEmpty ||
-        PhoneController.text.isEmpty ||
-        EmailController.text.isEmpty) {
+    if (photographerNameController.text.isEmpty ||
+        socialLinkController.text.isEmpty ||
+        phoneController.text.isEmpty ||
+        emailController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields.')),
       );
@@ -83,10 +83,10 @@ class _AddPhotographerState extends State<AddPhotographer> {
       });
 
       final photographerData = {
-        'photographername': PhotographerNameController.text,
-        'sociallink': SocialLinkController.text,
-        'phone': PhoneController.text,
-        'email': EmailController.text,
+        'photographername': photographerNameController.text,
+        'sociallink': socialLinkController.text,
+        'phone': phoneController.text,
+        'email': emailController.text,
       };
       await productDocRef.collection('Photographer').add(photographerData);
       Navigator.push(
@@ -112,161 +112,94 @@ class _AddPhotographerState extends State<AddPhotographer> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
-          'LOOK BOOK',
-          style: TextStyle(fontSize: width * 0.06, fontFamily: 'Agne', fontWeight: FontWeight.bold),
+          "LOOK\n      BOOK",
+          style: TextStyle(fontFamily: 'Agne', fontWeight: FontWeight.bold),
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.all(width * 0.04), // 4% padding from width
+        padding: EdgeInsets.symmetric(horizontal: width * 0.04, vertical: height * 0.02),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: width * 0.15), // 15% padding from width
-                child: Column(
+              Text(
+                'ADD PHOTOGRAPHER',
+                style: TextStyle(fontSize: 20, fontFamily: 'TenorSans'),
+              ),
+             
+              SvgPicture.asset(
+                'assets/icons/3.svg',
+                height: height * 0.02,
+                width: width * 0.04,
+              ),
+              SizedBox(height: 20),
+              GestureDetector(
+                onTap: _pickImage,
+                child: _imageFile == null
+                    ? Column(
                   children: [
-                    Container(
-                      margin: EdgeInsets.only(bottom: 5),
-                      child: Text(
-                        'ADD PHOTOGRAPHER',
-                        style: TextStyle(fontSize:20, fontFamily: 'TenorSans'), // Responsive font size
-                      ),
-                    ),
                     SvgPicture.asset(
-                      'assets/icons/3.svg',
-                      height: height * 0.015,
-                      width: width * 0.02,
+                      'assets/icons/add product images.svg',
+                      width: width * 0.68,
+                      height: height * 0.3,
                     ),
-                    SizedBox(height: height * 0.03), // Responsive height spacing
-                    GestureDetector(
-                      onTap: _pickImage,
-                      child: _imageFile == null
-                          ? Column(
-                        children: [
-                          SvgPicture.asset(
-                            'assets/icons/add product images.svg',
-                            width: width * 0.68, // 68% of screen width
-                            height: height * 0.3, // 30% of screen height
-                          ),
-                          Text('Tap to upload image',style: TextStyle(fontFamily: 'TenorSans',fontSize: width * 0.05),),
-                        ],
-                      )
-                          : Column(
-                        children: [
-                          Image.file(
-                            _imageFile!,
-                            width: width * 0.68,
-                            height: height * 0.3,
-                          ),
-                          SizedBox(height: 10),
-                          Text('Image uploaded!'),
-                        ],
-                      ),
+                  ],
+                )
+                    : Column(
+                  children: [
+                    Image.file(
+                      _imageFile!,
+                      width: width * 0.68,
+                      height: height * 0.3,
                     ),
-                    if (_imageUrl != null)
-                      Column(
-                        children: [
-                          SizedBox(height: height * 0.03),
-                          Image.network(
-                            _imageUrl!,
-                            width: width * 0.68,
-                            height: height * 0.3,
-                            fit: BoxFit.cover,
-                          ),
-                          SizedBox(height: height * 0.03),
-                        ],
-                      ),
+                    SizedBox(height: 10),
+                    Text('Image uploaded!'),
                   ],
                 ),
               ),
-              SizedBox(height: height * 0.02), // Responsive height spacing
-              Text(
-                'Photographer Name',
-                style: TextStyle(fontFamily: 'TenorSans',fontSize: width * 0.05), // Responsive font size
-              ),
-              SizedBox(height: height * 0.01), // Responsive height spacing
-              TextField(
-                controller: PhotographerNameController,
-                decoration: InputDecoration(
-                  hintText: 'Type',
-                  hintStyle: TextStyle(fontFamily: 'TenorSans',color: Colors.grey[400], fontSize: 14),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              if (_imageUrl != null) ...[
+                SizedBox(height: 20),
+                Image.network(
+                  _imageUrl!,
+                  width: width * 0.68,
+                  height: height * 0.3,
+                  fit: BoxFit.cover,
                 ),
-              ),
-              SizedBox(height: height * 0.03), // Responsive height spacing
-              Text(
-                'Social Link',
-                style: TextStyle(fontFamily: 'TenorSans',fontSize: width * 0.05), // Responsive font size
-              ),
-              SizedBox(height: height * 0.01), // Responsive height spacing
-              TextField(
-                controller: SocialLinkController,
-                decoration: InputDecoration(
-                  hintText: 'Link',
-                  hintStyle: TextStyle(fontFamily: 'TenorSans',color: Colors.grey[400], fontSize: 14),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                ),
-              ),
-              SizedBox(height: height * 0.03), // Responsive height spacing
-              Text(
-                'Phone Number',
-                style: TextStyle(fontFamily: 'TenorSans',fontSize: width * 0.05), // Responsive font size
-              ),
-              SizedBox(height: height * 0.01), // Responsive height spacing
-              TextField(
-                controller: PhoneController,
-                decoration: InputDecoration(
-                  hintText: 'Type',
-                  hintStyle: TextStyle(fontFamily: 'TenorSans',color: Colors.grey[400], fontSize: 14),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                ),
-              ),
-              SizedBox(height: height * 0.03), // Responsive height spacing
-              Text(
-                'Email',
-                style: TextStyle(fontFamily: 'TenorSans',fontSize: width * 0.05), // Responsive font size
-              ),
-              SizedBox(height: height * 0.01), // Responsive height spacing
-              TextField(
-                controller: EmailController,
-                decoration: InputDecoration(
-                  hintText: 'Type',
-                  hintStyle: TextStyle(fontFamily: 'TenorSans',color: Colors.grey[400], fontSize: 14),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                ),
-              ),
-              SizedBox(height: height * 0.03), // Responsive height spacing
+                SizedBox(height: 20),
+              ],
+              SizedBox(height: 10),
+              _buildTextField('Photographer Name', photographerNameController),
+              SizedBox(height: 10),
+              _buildTextField('Social Link', socialLinkController),
+              SizedBox(height: 10),
+              _buildTextField('Phone Number', phoneController),
+              SizedBox(height: 10),
+              _buildTextField('Email', emailController),
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _submitData,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center the text
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Save',
-                      style: TextStyle(fontFamily: 'Outfit_Variable_wght',fontSize: width * 0.05,color: Colors.white), // Responsive font size
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 18, horizontal: 40),
+                      child: Text(
+                        'Save',
+                        style: TextStyle(
+                          fontFamily: 'Outfit_Variable_wght',
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ],
                 ),
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 18, horizontal: 18),
                   backgroundColor: Color(0xFFE47F46),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
-
                   ),
                 ),
               ),
@@ -274,6 +207,41 @@ class _AddPhotographerState extends State<AddPhotographer> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontFamily: 'TenorSans', fontSize: 16),
+        ),
+        SizedBox(height: 10),
+        TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Type',
+            hintStyle: TextStyle(fontFamily: 'TenorSans', color: Colors.grey[400], fontSize: 14),
+            contentPadding: EdgeInsets.symmetric(horizontal: 20),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(70),
+              borderSide: BorderSide(
+                color: Colors.grey.withOpacity(0.5),
+                width: 1.5,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(70),
+              borderSide: BorderSide(color: Colors.orange, width: 2),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(70),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

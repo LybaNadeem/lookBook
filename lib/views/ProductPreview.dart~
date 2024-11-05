@@ -1,6 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // Ensure this is imported
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+
+import '../Controllers/product_previewcontroller.dart';
 import '../components/CustomButton.dart';
 import 'Edit.dart';
 
@@ -10,26 +13,26 @@ class ProductPreviewStateful extends StatefulWidget {
 }
 
 class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
-  int _currentIndex = 0; // Define the current index for the carousel
-  Color _selectedColor = Colors.black; // Default selected color
-  String _selectedSize = 'S'; // Default selected size
+  int _currentIndex = 0;
+  Color _selectedColor = Colors.blue;
+  String _selectedSize = '';
 
-  final List<String> imageList = [
-    'assets/images/product1.png',
-    'assets/images/picture2.jpg',
-    'assets/images/picture3.jpg',
-  ];
 
-  // Dots Indicator
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<ProductPreviewController>(context);
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         centerTitle: true,
-        title:
-           Text("LOOK\n    BOOK",
-                style: TextStyle(
-                             fontFamily: 'Agne', fontWeight: FontWeight.bold)),
+        title: Text(
+          "LOOK\n      BOOK",
+          style: TextStyle(fontFamily: 'Agne', fontWeight: FontWeight.bold),
+        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios),
           onPressed: () {
@@ -38,461 +41,317 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
         ),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image Carousel with Dots
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                // Image Carousel
-                CarouselSlider(
-                  items: imageList.map((imagePath) {
-                    return Container(
-                      width: 398,
-                      height: 533,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage(imagePath),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  options: CarouselOptions(
-                    height: 533,
-                    autoPlay: true,
-                    viewportFraction: 1.0,
-                    onPageChanged: (index, reason) {
-                      setState(() {
-                        _currentIndex =
-                            index; // Update current index on page change
-                      });
-                    },
-                  ),
-                ),
-                // Dot indicators
-                Positioned(
-                  bottom: 1, // Adjust the position of the dots
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: imageList.asMap().entries.map((entry) {
-                      int index = entry.key;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _currentIndex =
-                                index; // Update the current index on tap
-                          });
-                        },
-                        child: Container(
-                          width: 8.0,
-                          height: 15.0,
-                          margin: const EdgeInsets.symmetric(horizontal: 10.0),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _currentIndex == index
-                                ? Colors.white // Highlight current index
-                                : Colors.grey.withOpacity(0.5), // Other dots
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: isPortrait ? 16.0 : width * 0.1),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  controller.imageList.isNotEmpty
+                      ? CarouselSlider(
+                    items: controller.imageList.map((imageUrl) {
+                      return Container(
+                        width: isPortrait ? width * 0.9 : width * 0.6,
+                        height: isPortrait ? height * 0.5 : height * 0.4,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: NetworkImage(imageUrl),
+                            fit: BoxFit.cover,
                           ),
                         ),
                       );
                     }).toList(),
-                  ),
-                ),
-              ],
-            ),
-
-            // Product Details
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "MOHAN (DRESS)",
-                    style: TextStyle(
-                        fontFamily: 'TenorSans',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Recycle Boucle Knit Cardigan Pink",
-                    style: TextStyle(
-                        fontFamily: 'TenorSans', color: Colors.grey[700]),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "\$120",
-                    style: TextStyle(
-                      fontFamily: 'TenorSans',
-                      color: Color(0xFFE47F46),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                    options: CarouselOptions(
+                      height: isPortrait ? height * 0.5 : height * 0.4,
+                      autoPlay: true,
+                      viewportFraction: 1.0,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
                     ),
-                  ),
-                  SizedBox(height: 16),
-
-                  // Color and Size Selection
-                  Row(
-                    children: [
-                      Text(
-                        "Color",
-                        style: TextStyle(
-                          fontFamily: 'TenorSans',
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      // Color selection with GestureDetector
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedColor =
-                                Colors.black; // Change to black when tapped
-                          });
-                        },
-                        child: Container(
-                          width: 22.24,
-                          height: 22.24,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: _selectedColor == Colors.black
-                                  ? Colors.grey
-                                  : Colors.transparent,
-                              width: 2,
-                            ),
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedColor =
-                                Colors.orange; // Change to orange when tapped
-                          });
-                        },
-                        child: Container(
-                          width: 22.24,
-                          height: 22.24,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: _selectedColor == Colors.orange
-                                  ? Colors.grey
-                                  : Colors.transparent,
-                              width: 2,
-                            ),
-                            color: Color(0xFFE47F46),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedColor =
-                                Colors.grey; // Change to grey when tapped
-                          });
-                        },
-                        child: Container(
-                          width: 22.24,
-                          height: 22.24,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: _selectedColor == Colors.grey
-                                  ? Colors.grey
-                                  : Colors.transparent,
-                              width: 2,
-                            ),
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 35), // Gap between color and size
-                      Text(
-                        "Size",
-                        style: TextStyle(
-                          fontFamily: 'TenorSans',
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedSize = 'S'; // Change to size S when tapped
-                          });
-                        },
-                        child: CircleAvatar(
-                          backgroundColor: _selectedSize == 'S'
-                              ? Colors.black
-                              : Colors
-                                  .transparent, // Background color change on selection
-                          radius: 15, // Adjust the size of the circle
-                          child: Text(
-                            "S",
-                            style: TextStyle(
-                              fontFamily: 'TenorSans',
-                              fontWeight: FontWeight.bold,
-                              color: _selectedSize == 'S'
+                  )
+                      : Center(child: CircularProgressIndicator()),
+                  Positioned(
+                    bottom: 10,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: controller.imageList.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _currentIndex = index;
+                            });
+                          },
+                          child: Container(
+                            width: 8.0,
+                            height: 8.0,
+                            margin: EdgeInsets.symmetric(horizontal: 4.0),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _currentIndex == index
                                   ? Colors.white
-                                  : Colors
-                                      .black, // Text color change on selection
+                                  : Colors.grey.withOpacity(0.5),
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: 20),
-
-                  // Designer and Custom Button
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Designer Row
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: AssetImage(
-                                'assets/images/Designer circle.png'), // Designer Image
-                          ),
-                          SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "DESIGNER NAME (JHONE)",
-                                style: TextStyle(
-                                    fontFamily: 'TenorSans',
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 5),
-                              InkWell(
-                                onTap: () {
-                                  // Add logic for the view button
-                                },
-                                child: Container(
-                                  height: 30, // Set your desired height
-                                  width: 110, // Set your desired width
-                                  decoration: BoxDecoration(
-                                    color: Color(
-                                        0xFFE47F46), // Orange background color
-                                    borderRadius: BorderRadius.circular(
-                                        80), // Rounded corners
-                                  ),
-                                  alignment: Alignment
-                                      .center, // Center text inside the button
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment
-                                        .center, // Center both text and icon
-                                    children: [
-                                      Text(
-                                        "VIEW",
-                                        style: TextStyle(
-                                          fontFamily: 'TenorSans',
-                                          color:
-                                              Colors.white, // White text color
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                          width:
-                                              8), // Space between text and icon
-                                      SvgPicture.asset(
-                                        'assets/icons/arrow_icon.svg', // Path to the SVG icon
-                                        width: 10,
-                                        height: 10,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-
-                      // Photographer Row
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: AssetImage(
-                                'assets/images/photographer circle.png'), // Photographer Image
-                          ),
-                          SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                "PHOTOGRAPHER NAME (LISA)",
-                                style: TextStyle(
-                                    fontFamily: 'TenorSans',
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 5),
-                              InkWell(
-                                onTap: () {
-                                  // Add logic for the view button
-                                },
-                                child: Container(
-                                  height: 30, // Set your desired height
-                                  width: 110, // Set your desired width
-                                  decoration: BoxDecoration(
-                                    color: Color(
-                                        0xFFE47F46), // Orange background color
-                                    borderRadius: BorderRadius.circular(
-                                        80), // Rounded corners
-                                  ),
-                                  alignment: Alignment
-                                      .center, // Center text inside the button
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment
-                                        .center, // Center both text and icon
-                                    children: [
-                                      Text(
-                                        "VIEW",
-                                        style: TextStyle(
-                                          fontFamily: 'TenorSans',
-                                          color:
-                                              Colors.white, // White text color
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                          width:
-                                              8), // Space between text and icon
-                                      SvgPicture.asset(
-                                        'assets/icons/arrow_icon.svg', // Path to the SVG icon
-                                        width: 10,
-                                        height: 10,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-
-                      // Minimum Order Quantity
-                      Text(
-                        "Minimum Order Quantity (150)",
-                        style: TextStyle(
-                            fontFamily: 'TenorSans',
-                            fontWeight: FontWeight.bold),
-                      ),
-
-                      SizedBox(height: 8),
-
-                      // Buttons
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment
-                            .start, // Makes the buttons take full width
-                        children: [
-                          Container(
-                            height:
-                                58, // Set the desired height for the Edit button
-                            width: double.infinity, // Full width
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          Edit()), // Navigate to EditPage
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(
-                                    0xFFE47F46), // Button background color
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      80), // Rounded corners
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .center, // Align text and icon in the center
-                                children: [
-                                  SizedBox(
-                                      width:
-                                          8), // Space between the icon and text
-                                  Text(
-                                    "EDIT",
-                                    style: TextStyle(
-                                      fontFamily: 'Outfit-Variable-wght',
-                                      color: Colors.white, // Text color
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16, // Font size
-                                    ),
-                                  ),
-                                  SizedBox(width: 220),
-                                  SvgPicture.asset(
-                                    'assets/icons/edit.svg', // Path to the edit SVG icon
-                                    width: 20,
-                                    height: 20,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 8), // Space between buttons
-                          Container(
-                            height:
-                                80, // Set the desired height for the Edit button
-                            width: double.infinity, // Full width
-                            child: Padding(
-                              padding: const EdgeInsets.all(18.0),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Add your onPressed logic here
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Colors.white, // Button background color
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(80),
-                                    side: BorderSide(
-                                        color: Color(0xFFE47F46),
-                                        width: 1), // Rounded corners
-                                  ),
-                                ),
-                                child: Text(
-                                  "DONE",
-                                  style: TextStyle(
-                                    fontFamily: 'Outfit_Variable_wght',
-                                    color: Color(0xFFE47F46), // Text color
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18, // Font size for DONE button
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ],
               ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: isPortrait ? 16.0 : 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      controller.dressTitle,
+                      style: TextStyle(
+                        fontFamily: 'TenorSans',
+                        fontWeight: FontWeight.bold,
+                        fontSize: isPortrait ? 22 : 18,
+                      ),
+                    ),
+                    SizedBox(height: isPortrait ? 16.0 : 8.0),
+                    Text(
+                      controller.description,
+                      style: TextStyle(
+                        fontFamily: 'TenorSans',
+                        color: Colors.grey[700],
+                        fontSize: isPortrait ? 16 : 14,
+                      ),
+                    ),
+                    SizedBox(height: isPortrait ? 16.0 : 8.0),
+                    Text(
+                      "\$${controller.price}",
+                      style: TextStyle(
+                        fontFamily: 'TenorSans',
+                        color: Color(0xFFE47F46),
+                        fontWeight: FontWeight.bold,
+                        fontSize: isPortrait ? 20 : 16,
+                      ),
+                    ),
+                    SizedBox(height: isPortrait ? 16.0 : 8.0),
+
+                    // Color and Size Selection
+                    Row(
+                      children: [
+                        Text(
+                          "Color",
+                          style: TextStyle(fontFamily: 'TenorSans'),
+                        ),
+                        SizedBox(width: 16),
+                        // Display available colors
+                        Row(
+                          children: controller.colorsList
+                              .map((color) => buildColorOption(color))
+                              .toList(),
+                        ),
+                        Spacer(),
+                        Text(
+                          "Size",
+                          style: TextStyle(fontFamily: 'TenorSans'),
+                        ),
+                        SizedBox(width: 8),
+                        // Display available sizes
+                        Row(
+                          children: controller.sizesList
+                              .map((size) => buildSizeOption(size))
+                              .toList(),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+
+                    // Photographer Info and Actions
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage:
+                          AssetImage('assets/images/photographer circle.png'),
+                        ),
+                        SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "PHOTOGRAPHER NAME (LISA)",
+                              style: TextStyle(
+                                fontFamily: 'TenorSans',
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 5),
+                            viewButton(context),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+
+                    // Minimum Order Quantity and Buttons
+                    Text(
+                      "Minimum Order Quantity (${controller.minimumOrderQuantity})",
+                      style: TextStyle(
+                        fontFamily: 'TenorSans',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    actionButtons(width, isPortrait),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper Widgets
+  Widget buildColorOption(Color color) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedColor = color;
+        });
+      },
+      child: Container(
+        width: 22.24,
+        height: 22.24,
+        margin: EdgeInsets.only(right: 8.0),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: _selectedColor == color ? Colors.grey : Colors.transparent,
+            width: 2,
+          ),
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Widget buildSizeOption(String size) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedSize = size;
+        });
+      },
+      child: CircleAvatar(
+        backgroundColor: _selectedSize == size ? Colors.black : Colors.transparent,
+        radius: 15,
+        child: Text(
+          size,
+          style: TextStyle(
+            fontFamily: 'TenorSans',
+            fontWeight: FontWeight.bold,
+            color: _selectedSize == size ? Colors.white : Colors.black,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget viewButton(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context) {
+            return Container(
+              height: 513,
+              width: double.infinity,
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Other Bottom Sheet Content
+                ],
+              ),
+            );
+          },
+        );
+      },
+      child: Container(
+        height: 30,
+        width: 110,
+        decoration: BoxDecoration(
+          color: Color(0xFFE47F46),
+          borderRadius: BorderRadius.circular(80),
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "VIEW",
+              style: TextStyle(
+                fontFamily: 'TenorSans',
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
+            SizedBox(width: 8),
+            SvgPicture.asset('assets/icons/arrow_icon.svg', width: 10, height: 10),
           ],
         ),
       ),
+    );
+  }
+
+  Widget actionButtons(double width, bool isPortrait) {
+    return Column(
+      children: [
+        Container(
+          height: 58,
+          width: width * (isPortrait ? 0.9 : 0.6),
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Edit()));
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFFE47F46),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("EDIT", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                Spacer(),
+                SvgPicture.asset('assets/icons/edit.svg', width: 20, height: 20),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 8),
+        Container(
+          height: 80,
+          width: width * (isPortrait ? 0.9 : 0.6),
+          child: ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(80),
+                side: BorderSide(color: Color(0xFFE47F46), width: 1),
+              ),
+            ),
+            child: Text(
+              "DONE",
+              style: TextStyle(color: Color(0xFFE47F46), fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

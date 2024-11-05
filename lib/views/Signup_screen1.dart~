@@ -1,136 +1,133 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart'; // Add this import for SVG support
-import 'Signup_screen2.dart'; // Import the SignupScreen2
-
+import 'customer/Signup_up screen.dart';
 class SignupScreen1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final height=MediaQuery.of(context).size.height;
-    final width=MediaQuery.of(context).size.width;
-    return Scaffold(
-      body: Column(
-        children: [
-          // Image section
-          Container(
-            width:width*0.0430,
-            height:height * 0.0424,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/main picture.png'), // Replace with your image path
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SizedBox(height: height*0.070), // Space between image and text
-
-          // Text section
-          Text(
-            'Create With',
-            style: TextStyle(
-              fontFamily: 'Agne',
-              fontSize: 50,
-              fontWeight: FontWeight.bold,
-              height:height * 0.1, // Line height
-              letterSpacing: 1.21,
-            ),
-          ),
-
-          SizedBox(height:height*0.040), // Space between text and buttons
-
-          // Designer Button
-          Center(
-            child: SizedBox(
-              width:width*0.0360,
-              height:height * 0.058,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SignupScreen2(role: 'Designer'), // Navigate to SignupScreen2 with 'Designer' role
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFE47F46),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+    // Get screen width and height dynamically
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    return SafeArea(
+      child: Scaffold(
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Image section
+              Container(
+                width: screenWidth, // Full width based on screen size
+                height: screenHeight * 0.8, // 40% of the screen height
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/main picture.png'),
+                    fit: BoxFit.fitWidth,
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Designer',
-                      style: TextStyle(
-                        fontFamily: 'Outfit-Variable-wght',
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 170.0), // Adjusted space between text and icon
-                      child: SvgPicture.asset(
-                        'assets/icons/arrow_icon.svg',
-                        width: width * 0.016,
-                        height: width * 0.016, // Arrow icon
-                      ),
-                    ),
-                  ],
+              ),
+              SizedBox(height: 20), // Space between image and text
+              // Text section
+              Text(
+                'Create With',
+                style: TextStyle(
+                  fontFamily: 'Agne',
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  height: 1.36, // Line height
+                  letterSpacing: 1.21,
                 ),
               ),
-            ),
-          ),
-
-          SizedBox(height:height * 0.015), // Space between buttons
-
-          // Customer Button
-          Center(
-            child: SizedBox(
-              width:width*0.0360,
-              height: height * 0.058,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SignupScreen2(role: 'Customer'), // Navigate to SignupScreen2 with 'Customer' role
+              SizedBox(height: 20), // Space between text and buttons
+              // Designer Button
+              Center(
+                child: SizedBox(
+                  width: screenWidth * 0.8, // 80% of the screen width
+                  height: 58,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SignupScreen(role: 'Designer'), // Navigate with 'Designer' role
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFE47F46),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFE47F46),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Designer',
+                          style: TextStyle(
+                            fontFamily: 'Outfit-Variable-wght',
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Spacer(), // Creates space between text and icon
+                        SvgPicture.asset(
+                          'assets/icons/arrow_icon.svg',
+                          width: 16,
+                          height: 16, // Arrow icon
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Customer',
-                      style: TextStyle(
-                        fontFamily: 'Outfit-Variable-wght',
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+              ),
+              SizedBox(height: 15), // Space between buttons
+              // Customer Button
+              Center(
+                child: SizedBox(
+                  width: screenWidth * 0.8, // 80% of the screen width
+                  height: 58,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SignupScreen(role: 'Customer'), // Navigate with 'Customer' role
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFE47F46),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 170.0), // Adjusted space between text and icon
-                      child: SvgPicture.asset(
-                        'assets/icons/arrow_icon.svg',
-                        width: width * 0.016,
-                        height: height * 0.016, // Arrow icon
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Customer',
+                          style: TextStyle(
+                            fontFamily: 'Outfit-Variable-wght',
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Spacer(), // Creates space between text and icon
+                        SvgPicture.asset(
+                          'assets/icons/arrow_icon.svg',
+                          width: 16,
+                          height: 16, // Arrow icon
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+              SizedBox(height: 20), // Space at the bottom for better scrolling experience
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

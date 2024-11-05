@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // Import for SVG icons, if needed
+import 'package:flutter_svg/flutter_svg.dart';
+
+import 'Add_product1.dart'; // Import for SVG icons, if needed
 
 class MissInformationScreen extends StatefulWidget {
   final String userId;
@@ -31,7 +33,11 @@ class _MissInformationScreenState extends State<MissInformationScreen> {
         'isInformationComplete': true, // Mark as complete
       });
 
-      Navigator.pushReplacementNamed(context, '/homepage'); // Navigate to Home Page
+      // Navigate to AddProduct1 after successful update
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => AddProduct1()), // Change to AddProduct1
+      );
     } catch (e) {
       print("Error updating information: $e");
       ScaffoldMessenger.of(context).showSnackBar(
@@ -39,6 +45,7 @@ class _MissInformationScreenState extends State<MissInformationScreen> {
       );
     }
   }
+
 
   // Custom input field widget with optional suffix icon
   Widget customInputField({
@@ -56,7 +63,7 @@ class _MissInformationScreenState extends State<MissInformationScreen> {
           contentPadding: EdgeInsets.symmetric(horizontal: 20),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(70),
-            borderSide: BorderSide(color: Colors.grey, width: 1),
+            borderSide: BorderSide(color: Colors.grey.withOpacity(0.5), width: 1),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(70),
@@ -84,7 +91,7 @@ class _MissInformationScreenState extends State<MissInformationScreen> {
               height: height * 0.3,
               color: Colors.black,
               child: Padding(
-                padding: const EdgeInsets.only(left: 35.0, top: 44.0),
+                padding: const EdgeInsets.only(left: 35.0, top: 84.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,8 +108,8 @@ class _MissInformationScreenState extends State<MissInformationScreen> {
                     SizedBox(height: 10), // Add space between text and new container
                     // Add the new Container here
                     Container(
-                      height:height*0.05,
-                      width:width*0.4,
+                      height:height*0.03,
+                      width:width*0.35,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(70),
                         border: Border.all(color: Colors.white, width: 1),
@@ -118,7 +125,7 @@ class _MissInformationScreenState extends State<MissInformationScreen> {
                               style: TextStyle(
                                 fontFamily: 'TenorSans',
                                 fontWeight: FontWeight.bold,
-                                fontSize: 10,
+                                fontSize: 8,
                                 color: Colors.white,
                               ),
                             ),
@@ -152,26 +159,28 @@ class _MissInformationScreenState extends State<MissInformationScreen> {
                   ),
                   SizedBox(height: 20),
 
-                  // Submit Button
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: _submitInformation, // Submit information
-                      style: ElevatedButton.styleFrom(
 
-                        backgroundColor: Color(0xFFE47F46),
-                        minimumSize: Size(double.infinity, 50),
-                      ),
-                      child: Text(
-                        'UPDATE',
-                        style: TextStyle(
-                          fontFamily: 'Outfit_Variable_wght',
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                        onPressed: _submitInformation, // Submit information
+                        style: ElevatedButton.styleFrom(
+
+                          backgroundColor: Color(0xFFE47F46),
+                          minimumSize: Size(double.infinity, 50),
+                        ),
+                        child: Text(
+                          'UPDATE',
+                          style: TextStyle(
+                            fontFamily: 'Outfit_Variable_wght',
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+              ),
+
                   SvgPicture.asset(
                     'assets/icons/arrow_icon.svg', // Path to your SVG
                     width: 16, // Set width of the icon

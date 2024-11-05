@@ -31,10 +31,14 @@ class LoginScreen extends StatelessWidget {
                 labelText: 'Email',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30.0), // Set radius for the border
-                  borderSide: BorderSide(color: Colors.grey),
+                  borderSide: BorderSide(color: Colors.grey), // Default border color
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0), // Same radius when enabled
+                  borderSide: BorderSide(color: Colors.grey), // Border color when enabled
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0), // Same radius on focus
+                  borderRadius: BorderRadius.circular(30.0), // Same radius when focused
                   borderSide: BorderSide(color: Colors.orange), // Change border color when focused
                 ),
               ),
@@ -46,10 +50,14 @@ class LoginScreen extends StatelessWidget {
                 labelText: 'Password',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30.0), // Set radius for the border
-                  borderSide: BorderSide(color: Colors.grey),
+                  borderSide: BorderSide(color: Colors.grey), // Default border color
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0), // Same radius when enabled
+                  borderSide: BorderSide(color: Colors.grey), // Border color when enabled
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0), // Same radius on focus
+                  borderRadius: BorderRadius.circular(30.0), // Same radius when focused
                   borderSide: BorderSide(color: Colors.orange), // Change border color when focused
                 ),
               ),
