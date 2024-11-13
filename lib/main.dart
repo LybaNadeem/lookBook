@@ -38,26 +38,27 @@ class _MyAppState extends State<MyApp> {
   void checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
     if (isLoggedIn) {
       String? role = prefs.getString('role');
 
-      if (role == 'Designer') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => AddProduct1()),
-        );
-      } else if (role == 'Customer') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => CustomerHomePage()),
-        );
-      } else if (role == 'admin') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => AdminDashboard()),
-        );
-      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (role == 'Designer') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AddProduct1()),
+          );
+        } else if (role == 'Customer') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => CustomerHomePage()),
+          );
+        } else if (role == 'admin') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AdminDashboard()),
+          );
+        }
+      });
     }
   }
 
