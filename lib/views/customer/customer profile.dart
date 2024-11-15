@@ -141,6 +141,4 @@ class CustomerProfileScreen extends StatelessWidget {
     );
   }
 
-
-
 }
