@@ -9,6 +9,9 @@ import '../components/CustomButton.dart';
 import 'Edit.dart';
 
 class ProductPreviewStateful extends StatefulWidget {
+  var productId;
+
+  ProductPreviewStateful({Key? key, required this.productId}) : super(key: key);
   @override
   _ProductPreviewStatefulState createState() => _ProductPreviewStatefulState();
 }
@@ -30,25 +33,26 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
   void initState() {
     super.initState();
     getData();
+    print('productId${widget.productId}');
   }
 
   // Function to fetch data from Firebase
   Future<void> getData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    CollectionReference productsRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('products');
+    CollectionReference productsRef = FirebaseFirestore.instance.collection('products');
 
     try {
-      QuerySnapshot querySnapshot = await productsRef.get();
-      final allData = querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+      DocumentSnapshot productSnapshot = await productsRef.doc(widget.productId).get();
 
-      setState(() {
-        if (allData.isNotEmpty) {
-          final productData = allData[0];
+      if (productSnapshot.exists) {
+        final productData = productSnapshot.data() as Map<String, dynamic>;
+        print('if snapshot exists${productData}');
+        print("imageList: ${productData['image']}");
+        print("DressTitle: ${productData['DressTitle']}");
+        print("projectDescription: ${productData['projectDescription']}");
+        print("price: ${productData['price']}");
+        print("minimumorder: ${productData['minimumorder']}");
+
+        setState(() {
           imageList = List<String>.from(productData['image'] ?? []);
           dressTitle = productData['DressTitle'] ?? '';
           description = productData['projectDescription'] ?? '';
@@ -62,12 +66,15 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
 
           // Get sizes
           sizesList = List<String>.from(productData['Sizes'] ?? []);
-        }
-      });
+        });
+      } else {
+        print("No product found with ID: ${widget.productId}");
+      }
     } catch (e) {
       print("Error getting data: $e");
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -353,7 +360,7 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
           width: width * (isPortrait ? 0.9 : 0.6),
           child: ElevatedButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => Edit()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Edit(productId: '',)));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFFE47F46),

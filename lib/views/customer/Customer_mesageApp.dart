@@ -1,14 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'ChatDetailScreen.dart';
-import 'HomePage.dart';
+
+import '../ChatDetailScreen.dart';
+import '../MessageApp.dart';
+import 'Customer_chatdetail.dart';
 
 
-class MessagesApp extends StatelessWidget {
+class CustomerMesageapp extends StatelessWidget {
   final String id ;
 
-  const MessagesApp({Key? key , required this.id}) : super(key: key);
+  const CustomerMesageapp({Key? key , required this.id}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,7 @@ class MessagesApp extends StatelessWidget {
   }
 }
 
-class MessagesScreen extends StatelessWidget {
+class CustomerMessagesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,16 +36,9 @@ class MessagesScreen extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            // Navigate to the homepage
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => HomePage(productId: null,)), // Replace `HomePage` with your homepage widget
-              );
-            }
-
+            Navigator.pop(context);
+          },
         ),
-
-
       ),
 
       body: Padding(
@@ -59,9 +54,9 @@ class MessagesScreen extends StatelessWidget {
               ),
             ),
             SvgPicture.asset(
-              'assets/icons/3.svg', // Path to your SVG asset
-              height:10, // Adjust the height relative to screen height
-              width:10  // Minimize the width further if needed// Ensures the SVG fits the container size
+                'assets/icons/3.svg', // Path to your SVG asset
+                height:10, // Adjust the height relative to screen height
+                width:7  // Minimize the width further if needed// Ensures the SVG fits the container size
             ),
             SizedBox(height: 10),
             // Search Bar
@@ -72,9 +67,9 @@ class MessagesScreen extends StatelessWidget {
                   hintText: 'Search',
                   prefixIcon: Icon(Icons.search),
                   filled: true,
-                  fillColor: Colors.grey[100],
+                  fillColor: Colors.grey[200],
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,
                   ),
                 ),
@@ -124,9 +119,9 @@ class MessagesScreen extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Chatdetailscreen(
+            builder: (context) => CustomerChatDetail(
               name: name,
-
+              chatRoomId: chatRoomId,
             ),
           ),
         );
@@ -151,7 +146,6 @@ class MessagesScreen extends StatelessWidget {
       )
           : null,
     );
-
   }
 
 }

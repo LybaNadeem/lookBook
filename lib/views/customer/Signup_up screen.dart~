@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../components/textfield.dart';
@@ -8,6 +9,7 @@ import '../missing_information.dart';
 
 class SignupScreen extends StatefulWidget {
   final String role;
+
 
   SignupScreen({required this.role});
 
@@ -18,6 +20,7 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
@@ -36,6 +39,10 @@ class _SignupScreenState extends State<SignupScreen> {
     _confirmPasswordController.dispose();
     _phoneController.dispose();
     super.dispose();
+  }
+  Future<String> getDeviceToken() async {
+    String? token = await messaging.getToken();
+    return token ?? '';
   }
 
   Future<void> _signup() async {
@@ -61,7 +68,7 @@ class _SignupScreenState extends State<SignupScreen> {
         email: email,
         password: password,
       );
-
+      String deviceToken = await getDeviceToken();
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'fullName': fullName,
         'email': email,
@@ -69,6 +76,7 @@ class _SignupScreenState extends State<SignupScreen> {
         'UserID': userCredential.user!.uid,
         'role': widget.role,
         'isInformationComplete': false,
+        
       });
 
       print("User registered successfully: ${userCredential.user!.uid}");
@@ -246,7 +254,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFE47F46), // Orange color
-                        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0), // Fixed padding for consistent look
+                        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0), // Fixed padding for consistent look
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30), // Rounded corners
                         ),

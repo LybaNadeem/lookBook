@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // Import flutter_svg
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled/views/Notification_services.dart';
 
-class Report extends StatefulWidget {
+import '../providers/Notification_provider.dart'; // Import flutter_svg
+
+class DesignerReport extends StatefulWidget {
+  DesignerReport({Key? key}) : super(key: key);
+  final NotificationServices _notificationService = NotificationServices();
   @override
-  _ReportState createState() => _ReportState();
+  DesignerReportState createState() => DesignerReportState();
 }
 
-class _ReportState extends State<Report> {
+class DesignerReportState extends State<DesignerReport> {
   // Dummy sender name; you can set it dynamically
   final String name = "John Doe";
 
@@ -35,7 +41,8 @@ class _ReportState extends State<Report> {
           child: Padding(
             padding: const EdgeInsets.all(18.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center, // Center contents horizontally
+              crossAxisAlignment:
+                  CrossAxisAlignment.center, // Center contents horizontally
               children: [
                 // Title: REPORT
                 Text(
@@ -52,7 +59,7 @@ class _ReportState extends State<Report> {
                 SvgPicture.asset(
                   'assets/icons/3.svg', // Replace with your actual SVG path
                   height: 12, // Set height for better visibility
-                  width: 12,  // Set width for better visibility
+                  width: 12, // Set width for better visibility
                 ),
 
                 // Add space between SVG and chat bubble
@@ -60,7 +67,8 @@ class _ReportState extends State<Report> {
 
                 // Chat bubble positioned at the start of the row
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start, // Aligns children to the start of the row
+                  mainAxisAlignment: MainAxisAlignment
+                      .start, // Aligns children to the start of the row
                   children: [
                     ChatBubble(
                       text: "No worries. Let me know",
@@ -71,68 +79,69 @@ class _ReportState extends State<Report> {
                 ),
 
                 // Add space between chat bubble and description TextField
-                SizedBox(height: 30), // Space between card and TextField
+                SizedBox(height: 20), // Space between card and TextField
 
                 // TextField for input with multiple lines
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey), // Set the color and width of the border
-                    borderRadius: BorderRadius.circular(20), // Optional: for rounded corners
+                    border: Border.all(
+                      color: Colors.grey, // Set the color and width of the border
+                    ),
+                    borderRadius: BorderRadius.circular(20), // Rounded corners
                   ),
                   child: TextField(
                     maxLines: 5, // Allows up to 5 lines of text
                     decoration: InputDecoration(
-                      hintText: 'Enter your report...',
-                      border: InputBorder.none, // Removes the inner border
+                      hintText: 'Enter your report...', // Removes the inner border
                       fillColor: Colors.grey[200], // Set light grey background color
                       filled: true, // Enables the fill color
-                      contentPadding: EdgeInsets.all(12),
+                      contentPadding: EdgeInsets.all(12), // Adds padding inside the TextField
                     ),
                   ),
                 ),
-
-
 
 
                 SizedBox(height: 20), // Space between TextField and Button
 
                 // Elevated Button
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start, // Aligns items to the start of the row
+                  mainAxisAlignment: MainAxisAlignment
+                      .start, // Aligns items to the start of the row
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                        // Add your onPressed logic here
+                      onPressed: () async {
+                        const title = 'Report Submitted';
+                        const body = 'Your report has been sent successfully.';
 
+                        // Update notification using Provider
+                        Provider.of<NotificationProvider>(context, listen: false)
+                            .updateNotification('$title: $body');
+
+                        // Trigger local notification
+                        await NotificationServices().triggerDynamicNotification(title, body);
+
+                        // Show confirmation dialog
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text("Report Submitted"),
+                              content: Text("Your report has been sent successfully."),
+                              actions: [
+                                TextButton(
+                                  child: Text("OK"),
+                                  onPressed: () => Navigator.pop(context),
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFC60D06), // Button background color
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(80), // Rounded corners
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min, // Ensures button takes only needed width
-                        children: [ // Space between icon and text
-                          Text(
-                            "REPORT",
-                            style: TextStyle(
-                              fontFamily: 'Outfit_Variable_wght',
-                              color: Colors.white, // Text color
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18, // Font size for REPORT button
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                          SvgPicture.asset(
-                            // Replace with your actual SVG path
-                            'assets/icons/arrow_icon.svg',
-                            width: 10,
-                            height: 10,
-                          ),
-                        ],
-                      ),
-                    ),
+                      child: Text("Report"),
+                    )
+
+
+
                   ],
                 ),
               ],
@@ -167,7 +176,8 @@ class ChatBubble extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
-        crossAxisAlignment: isSentByUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment:
+            isSentByUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Text(
             sender,

@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import '../services/firebase_function.dart';
+import 'package:untitled/views/login_screen.dart';
 
 class LogoutPage extends StatelessWidget {
   @override

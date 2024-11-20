@@ -31,7 +31,7 @@ class _CustomerHome2State extends State<CustomerHome2> {
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MessagesApp()),
+        MaterialPageRoute(builder: (context) => MessagesApp(id: '',)),
       );
     } else if (index == 3) {
       Navigator.push(
@@ -41,7 +41,7 @@ class _CustomerHome2State extends State<CustomerHome2> {
     } else if (index == 4) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => CustomerProfileScreen()),
+        MaterialPageRoute(builder: (context) => ProfileCustomerScreen()),
       );
     }
   }

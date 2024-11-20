@@ -76,7 +76,7 @@ class AddProduct1 extends StatelessWidget {
                     // Navigate to AddProduct2 when button is pressed
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => AddProduct2()),
+                      MaterialPageRoute(builder: (context) => AddProduct2(productId: '',)),
                     );
                   },
                   style: ElevatedButton.styleFrom(

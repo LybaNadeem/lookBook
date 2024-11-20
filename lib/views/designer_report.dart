@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart'; // Import flutter_svg
 
-class Report extends StatefulWidget {
+class DesignerReport extends StatefulWidget {
   @override
-  _ReportState createState() => _ReportState();
+  DesignerReportState createState() => DesignerReportState();
 }
 
-class _ReportState extends State<Report> {
+class DesignerReportState extends State<DesignerReport> {
   // Dummy sender name; you can set it dynamically
   final String name = "Brooke";
 

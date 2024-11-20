@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:untitled/views/Admin/Block_page.dart';
 
 import '../Logout.dart';
+import '../MessageApp.dart';
 import '../customer/customer profile.dart';
 import 'Converstaions.dart';
 import 'Customer_page.dart';
@@ -32,18 +33,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
       _currentIndex = index;
     });
 
-    if (index == 1) {
+    if (index == 3) {
+      // Navigate to the ReportPage and trigger a notification
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MessagesApp()),
+        MaterialPageRoute(builder: (context) => ReportPage()),
       );
-    } else if (index == 3) {
+
+    } else if (index == 1) {
+      // Navigate to MessagesApp
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => CustomerProfileScreen()),
+        MaterialPageRoute(
+          builder: (context) => MessagesApp(id: ''), // Pass appropriate ID
+        ),
       );
+    } else {
+      print("Other tab selected: $index");
     }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -234,12 +245,5 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 }
 
-class MessagesApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Messages')),
-      body: Center(child: Text('Messages Screen')),
-    );
-  }
-}
+
+

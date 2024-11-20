@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:untitled/views/login_screen.dart';
@@ -130,12 +131,24 @@ class LogoutPage extends StatelessWidget {
                      padding: const EdgeInsets.all(12.0),
                      child: ElevatedButton(
                        onPressed: () async {
-                         // Handle logout functionality
                          try {
-                           await FirebaseAuth.instance.signOut(); // Sign out the user
+                           // Get the currently logged-in user's ID
+                           String? userId = FirebaseAuth.instance.currentUser?.uid;
+
+                           if (userId != null) {
+                             // Access Firestore and delete the device token
+                             await FirebaseFirestore.instance.collection('users').doc(userId).update({
+                               'deviceToken': FieldValue.delete(),
+                             });
+                           }
+
+                           // Sign out the user
+                           await FirebaseAuth.instance.signOut();
+
+                           // Navigate to LoginScreen
                            Navigator.pushReplacement(
                              context,
-                             MaterialPageRoute(builder: (context) => LoginScreen()), // Navigate to LoginScreen
+                             MaterialPageRoute(builder: (context) => LoginScreen()),
                            );
                          } catch (e) {
                            print("Error during logout: $e");
@@ -144,6 +157,7 @@ class LogoutPage extends StatelessWidget {
                            );
                          }
                        },
+
                        style: ElevatedButton.styleFrom(
                          backgroundColor: Color(0xFFE47F46), // Orange color for button
                          shape: RoundedRectangleBorder(

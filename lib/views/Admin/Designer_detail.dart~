@@ -1,274 +1,161 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-class DesignerDetail extends StatefulWidget {
+import '../../Controllers/designer_controller.dart';
+import 'Designer_detail.dart';
+class DesignersPage extends StatefulWidget {
   @override
-  _DesignerDetailState createState() => _DesignerDetailState();
+  _DesignersPageState createState() => _DesignersPageState();
 }
-
-class _DesignerDetailState extends State<DesignerDetail> {
-  Color cancelButtonColor = Colors.white;
-  Color confirmButtonColor = Colors.white;
+class _DesignersPageState extends State<DesignersPage> {
+  final DesignerController _designerController = DesignerController();
+  List<Map<String, String>> designers = [];
+  bool isLoading = true;
+  Map<String, String>? selectedDesigner;
+  @override
+  void initState() {
+    super.initState();
+    _fetchDesigners();
+    displayDesignerInfo(); // Fetch designer details on page load
+  }
+  void _fetchDesigners() async {
+    designers = await _designerController.getDesigners();
+    setState(() {
+      isLoading = false;
+    });
+  }
+  // Function to display the specific designer's information in a ListTile format
+  Future<void> displayDesignerInfo() async {
+    String userId = 'sDl8DYgRX3SHQYTXbhftOxNBR1W2';
+    try {
+      Map<String, String> designerInfo = await _designerController.getDesignerById(userId);
+      setState(() {
+        selectedDesigner = designerInfo;
+      });
+    } catch (e) {
+      print('Error fetching designer info: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final double padding = screenSize.width * 0.05;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         centerTitle: true,
-        title: Text(
-          "LOOK\n      BOOK",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontFamily: 'Agne',
-          ),
+        title: Column(
+          children: [
+            Text(
+              "LOOK\n BOOK",
+              style: TextStyle(fontFamily: 'Agne', fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: padding, vertical: 8), // Responsive padding
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Text(
-                  'DESIGNER',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontFamily: 'TenorSans',
-                    letterSpacing: 1.5,
-                  ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Designers',
+              style: TextStyle(
+                fontSize: 24,
+                fontFamily: 'TenorSans',
+                letterSpacing: 1.5,
+              ),
+            ),
+            SvgPicture.asset('assets/icons/3.svg'),
+            SizedBox(height: 30.0),
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                hintText: 'Search',
+                filled: true,
+                fillColor: Color(0xFF8F9FEE).withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(60),
+                  borderSide: BorderSide.none,
                 ),
               ),
-              Center(child: SvgPicture.asset('assets/icons/3.svg')),
-              SizedBox(height: 40),
-              Center(
-                child: Container(
-                  width: screenSize.width * 0.9, // 90% of screen width
-                  height: 300,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/Mask group2.png'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
+            ),
+            SizedBox(height: 20.0),
+            selectedDesigner != null
+                ? ListTile(
+              leading: CircleAvatar(
+                backgroundImage: NetworkImage(selectedDesigner!['profileImage']!),
               ),
-              SizedBox(height: 20),
-              Text(
-                'J O H N',
-                style: TextStyle(
-                  fontFamily: 'TenorSans',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
+              title: Text(
+                selectedDesigner!['fullName'] ?? 'No Name',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 15),
-              Text(
-                'We work with monitoring programmes to ensure compliance with safety, health and quality standards for our products.',
-                style: TextStyle(
-                  fontFamily: 'TenorSans',
-                  color: Colors.grey.shade700,
-                  fontSize: 14,
-                ),
+              subtitle: Text(
+                selectedDesigner!['phone'] ?? 'No Phone',
+                style: TextStyle(decoration: TextDecoration.underline),
               ),
-              SizedBox(height: 20),
-              // Phone Row
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Phone Section
-                  _buildContactInfoSection('Phone', '+49 40 60774609', 'assets/icons/phone.svg'),
-                  SizedBox(height: 10),
-
-                  // Email Section
-                  _buildContactInfoSection('Email', 'info@eternal-vitality.de', 'assets/icons/Message.svg'),
-                  SizedBox(height: 10),
-
-                  // Instagram Section
-                  _buildContactInfoSection('Instagram', '@Instagram/designer', 'assets/icons/Instagram.svg'),
-                  SizedBox(height: 20),
-                ],
-              ),
-              // Button Section wrapped in a container for better layout
-              Row(
-                children: [
-                  Center(
-                    child: Container(
-                      width: screenSize.width * 0.4, // 50% of screen width
-                      height: 42,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _showBlockDialog(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+              trailing: Icon(Icons.arrow_forward, color: Color(0xFFE47F46)),
+            )
+                : Text(
+              'Loading designer details...',
+              style: TextStyle(color: Colors.red),
+            ),
+            SizedBox(height: 20.0),
+            Expanded(
+              child: ListView.builder(
+                itemCount: designers.length,
+                itemBuilder: (context, index) {
+                  final designer = designers[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DesignerDetail(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 90.0,
+                        child: Card(
+                          shadowColor: Color(0xFF8F9CD6).withOpacity(0.05),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(40),
+                            side: BorderSide(color: Colors.transparent, width: 2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(designer['image']!),
+                            ),
+                            title: Text(
+                              '${designer['name']} (Designer)',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(
+                              designer['phone']!,
+                              style: TextStyle(decoration: TextDecoration.underline),
+                            ),
+                            trailing: Icon(Icons.arrow_forward, color: Color(0xFFE47F46)),
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'BLOCK',
-                              style: TextStyle(
-                                fontFamily: 'TenorSans',
-                                fontSize: 14,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(width: 25),
-                            SvgPicture.asset(
-                              'assets/icons/arrow_icon.svg',
-                              width: 10,
-                              height: 10,
-                            ),
-                            SizedBox(width: 4),
-                          ],
-                        ),
                       ),
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  // Function to build contact info sections
-  Widget _buildContactInfoSection(String title, String info, String iconPath) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontFamily: 'TenorSans',
-            fontSize: 16,
-            color: Colors.black,
-          ),
-        ),
-        Row(
-          children: [
-            SvgPicture.asset(
-              iconPath,
-              width: 20,
-              height: 20,
-            ),
-            SizedBox(width: 8),
-            Text(
-              info,
-              style: TextStyle(
-                fontFamily: 'TenorSans',
-                fontSize: 14,
-                color: Colors.grey.shade700,
-                overflow: TextOverflow.ellipsis, // Handle overflow
-              ),
-            ),
-            SizedBox(width: 8),
-            SvgPicture.asset(
-              'assets/icons/orange arrow_icon.svg',
-              width: 10,
-              height: 10,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // Function to show the dialog
-  void _showBlockDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-          title: Text(
-            'Confirmation',
-            style: TextStyle(
-              fontFamily: 'TenorSans',
-              fontSize: 18,
-            ),
-          ),
-          content: Text(
-            'Are you sure you want to block?',
-            style: TextStyle(
-              fontFamily: 'TenorSans',
-              fontSize: 16,
-            ),
-          ),
-          actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      cancelButtonColor = Colors.black; // Change to black on tap
-                      confirmButtonColor = Colors.white; // Keep confirm button white
-                    });
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: cancelButtonColor,
-                      borderRadius: BorderRadius.circular(8), // Slightly rounded corners
-                      border: Border.all(
-                        color: Colors.grey, // Set your desired border color here
-                        width: 1,
-                      ),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    child: Text(
-                      'Cancel',
-                      style: TextStyle(
-                        color: cancelButtonColor == Colors.black ? Colors.white : Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      confirmButtonColor = Colors.black; // Change to black on tap
-                      cancelButtonColor = Colors.white; // Keep cancel button white
-                    });
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: confirmButtonColor,
-                      borderRadius: BorderRadius.circular(8), // Slightly rounded corners
-                      border: Border.all(
-                        color: Colors.grey, // Set your desired border color here
-                        width: 1, // Adjust the border width if needed
-                      ),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    child: Text(
-                      'Confirm',
-                      style: TextStyle(
-                        color: confirmButtonColor == Colors.black ? Colors.white : Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
     );
   }
 }

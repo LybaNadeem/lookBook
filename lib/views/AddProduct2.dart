@@ -12,6 +12,9 @@ import 'AddPhotographer .dart';
 
 class AddProduct2 extends StatefulWidget
 {
+  var productId;
+
+  AddProduct2({Key? key, required this.productId}) : super(key: key);
   @override
   _AddProduct2State createState() => _AddProduct2State();
 }
@@ -23,6 +26,7 @@ class _AddProduct2State extends State<AddProduct2>
   final List<String> sizes = ['S', 'M', 'L'];
   final List<String> categories = ['Dresses', 'Shoes', 'Jackets'];
   String? selectedCategory;
+  String? productId;
 
   TextEditingController dressTitleController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -116,17 +120,8 @@ class _AddProduct2State extends State<AddProduct2>
       return;
     }
 
-
-    // Generate a new document reference to create a unique productId
-    DocumentReference productRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('products')
-        .doc();
-
-
-    // Get the unique productId
-    String productId = productRef.id;
+    // Reference a new document in the 'products' collection
+    DocumentReference productRef = FirebaseFirestore.instance.collection('products').doc();
 
     // Prepare the data for Firestore
     final productData = {
@@ -142,15 +137,25 @@ class _AddProduct2State extends State<AddProduct2>
       'Event': EventController.text,
       'Colors': [colorsController.text], // Store colors in a list
       'Sizes': [sizesController.text], // Store sizes in a list
-      'productId': productId, // Add the generated productId
+      'userId': currentUser!.uid,
+      'timestamp': FieldValue.serverTimestamp(), // Optional: Track when added
     };
 
-    // Log the data for debugging
-    print('Submitting data: $productData');
-
-    // Try to add the data to Firestore
     try {
+      // Add the data to Firestore
       await productRef.set(productData);
+
+      // Update the document to include the product ID
+      await productRef.update({'productId': productRef.id});
+
+      setState(() {
+        productId = productRef.id;
+      });
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AddPhotographer(productId: productRef.id,)),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Product added successfully!')),
       );
@@ -160,6 +165,8 @@ class _AddProduct2State extends State<AddProduct2>
       );
     }
   }
+
+
 
 
 
@@ -817,11 +824,6 @@ class _AddProduct2State extends State<AddProduct2>
                   ElevatedButton(
                     onPressed: () {
                       _submitData(); // Call your submit data function
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => AddPhotographer()),
-                      );
 
                     },
                     child: Row(

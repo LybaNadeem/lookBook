@@ -1,7 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  User? currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUserData();
+  }
+
+  void getCurrentUserData() {
+    // Get the current user from FirebaseAuth
+    currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) {
+      // If no user is logged in, handle appropriately (e.g., redirect to login)
+      print("No user is currently logged in.");
+    }
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +45,9 @@ class ProfileScreen extends StatelessWidget {
           },
         ),
       ),
-      body: SingleChildScrollView(
+      body: currentUser == null
+          ? Center(child: Text("No user logged in"))
+          : SingleChildScrollView(
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
@@ -35,55 +62,34 @@ class ProfileScreen extends StatelessWidget {
                       color: Color(0xFFF4C3A7),
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    padding: EdgeInsets.only(top: 70, left: 20, right: 20), // Add top padding to avoid the avatar
+                    padding: EdgeInsets.only(
+                        top: 70, left: 20, right: 20), // Add top padding to avoid the avatar
                     child: Column(
                       children: [
                         // Name Field
-                        buildTextField('Jhone Rick', Icons.edit),
+                        buildTextField(
+                            currentUser?.displayName ?? 'No Name', Icons.edit),
                         SizedBox(height: 10),
 
                         // Email Field
-                        buildTextField('willie.jennings@example.com', Icons.edit),
+                        buildTextField(currentUser?.email ?? 'No Email', Icons.edit),
                         SizedBox(height: 10),
 
-                        // Phone Field
-                        buildTextField('03157348409', Icons.edit),
+                        // Phone Field (if available)
+                        buildTextField(currentUser?.phoneNumber ?? 'No Phone', Icons.edit),
                         SizedBox(height: 10),
 
-                        // Password Field
+                        // Password Field (obfuscated)
                         buildTextField('**************', Icons.edit),
-                        SizedBox(height: 10),
-
-                        // Instagram Field
-                        buildTextField('instagram.com/Jhon', Icons.edit),
-                        SizedBox(height: 10),
-
-                        // LinkedIn Field
-                        buildTextField('linkedin.com/Jhon', Icons.edit),
                         SizedBox(height: 15),
-
-                        // Add Social Links
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Add Social Links',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14,
-                              ),
-                            ),
-                            SizedBox(width: 5),
-                            Icon(Icons.add_circle_outline, color: Colors.orange),
-                          ],
-                        ),
-                        SizedBox(height: 20),
 
                         // Update Button
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            // Add update functionality if needed
+                          },
                           style: ElevatedButton.styleFrom(
-                            minimumSize: Size(double.infinity, 50), // Full width and height of 50
+                            minimumSize: Size(double.infinity, 50), // Full width
                             backgroundColor: Color(0xFFE47F46), // Orange color
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
@@ -119,14 +125,16 @@ class ProfileScreen extends StatelessWidget {
             ),
             SizedBox(height: 50),
             // Profile Image Positioned
-            Positioned(top: 60, // Adjust as needed to control overlap
+            Positioned(
+              top: 60, // Adjust as needed to control overlap
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage:
-                    AssetImage('assets/images/Designer circle.png'), // Placeholder image
+                    backgroundImage: NetworkImage(
+                        currentUser?.photoURL ??
+                            'https://via.placeholder.com/150'), // Placeholder if no photoURL
                   ),
                   Positioned(
                     bottom: 0,

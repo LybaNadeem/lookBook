@@ -6,6 +6,7 @@ import 'package:untitled/views/customer/customer%20profile.dart';
 import '../Logout.dart';
 import '../MessageApp.dart';
 import '../ProfileScreen.dart';
+import 'Barcode_scanner.dart';
 import 'Notification.dart';
 import 'customer_home2.dart';
 
@@ -30,7 +31,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MessagesApp()),
+        MaterialPageRoute(builder: (context) => MessagesApp(id: '',)),
       );
     } else if (index == 2) {
       Navigator.push(
@@ -45,7 +46,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
     } else if (index == 4) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => CustomerProfileScreen()),
+        MaterialPageRoute(builder: (context) => ProfileCustomerScreen()),
       );
     }
   }
@@ -576,14 +577,27 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             ],
           ),
           Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.03, // 6% from the bottom
+            bottom: MediaQuery.of(context).size.height * 0.03,
             left: 0,
             right: 0,
             child: Center(
-              child: SvgPicture.asset(
-                'assets/icons/barcode.svg',
-                width: MediaQuery.of(context).size.width * 0.2, // 20% of screen width
-                height: MediaQuery.of(context).size.width * 0.2, // 20% of screen width (maintaining aspect ratio)
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => BarcodeScannerPage()),
+                  ).then((scannedCode) {
+                    if (scannedCode != null) {
+                      print("Scanned Barcode: $scannedCode");
+                      // Handle the scanned code, e.g., display it or perform an action
+                    }
+                  });
+                },
+                child: SvgPicture.asset(
+                  'assets/icons/barcode.svg',
+                  width: MediaQuery.of(context).size.width * 0.2,
+                  height: MediaQuery.of(context).size.width * 0.2,
+                ),
               ),
             ),
           ),

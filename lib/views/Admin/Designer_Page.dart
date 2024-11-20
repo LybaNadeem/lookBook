@@ -1,19 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import '../../Controllers/designer_controller.dart';
 import 'Designer_detail.dart';
-
-class DesignersPage extends StatelessWidget {
-  final List<Map<String, String>> designers = [
-    {'name': 'Jhone Lane', 'phone': '+49 40 60774609', 'image': 'assets/images/antwon.jpg'},
-    {'name': 'Ronald Richards', 'phone': '+49 40 60774609', 'image': 'assets/images/brooke.jpg'},
-    {'name': 'Darlene Robertson', 'phone': '+49 40 60774609', 'image': 'assets/images/haley.jpg'},
-    {'name': 'Marvin McKinney', 'phone': '+49 40 60774609', 'image': 'assets/images/marvin.jpg'},
-    {'name': 'Savannah Nguyen', 'phone': '+49 40 60774609', 'image': 'assets/images/jake.jpg'},
-    {'name': 'Ralph Edwards', 'phone': '+49 40 60774609', 'image': 'assets/images/nathan.jpg'},
-    {'name': 'Annette Black', 'phone': '+49 40 60774609', 'image': 'assets/images/jamie.jpg'},
-  ];
-
+class DesignersPage extends StatefulWidget {
+  @override
+  _DesignersPageState createState() => _DesignersPageState();
+}
+class _DesignersPageState extends State<DesignersPage> {
+  final DesignerController _designerController = DesignerController();
+  List<Map<String, String>> designers = [];
+  bool isLoading = true;
+  Map<String, String>? selectedDesigner;
+  @override
+  void initState() {
+    super.initState();
+    _fetchDesigners();
+    displayDesignerInfo(); // Fetch designer details on page load
+  }
+  void _fetchDesigners() async {
+    designers = await _designerController.getDesigners();
+    setState(() {
+      isLoading = false;
+    });
+  }
+  // Function to display the specific designer's information in a ListTile format
+  Future<void> displayDesignerInfo() async {
+    String userId = 'sDl8DYgRX3SHQYTXbhftOxNBR1W2';
+    try {
+      Map<String, String> designerInfo = await _designerController.getDesignerById(userId);
+      setState(() {
+        selectedDesigner = designerInfo;
+      });
+    } catch (e) {
+      print('Error fetching designer info: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,14 +45,14 @@ class DesignersPage extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context); // Navigate back on button press
+            Navigator.pop(context);
           },
         ),
         centerTitle: true,
         title: Column(
           children: [
             Text(
-              "LOOK\n      BOOK",
+              "LOOK\n BOOK",
               style: TextStyle(fontFamily: 'Agne', fontWeight: FontWeight.bold),
             ),
           ],
@@ -39,7 +60,9 @@ class DesignersPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
@@ -65,6 +88,26 @@ class DesignersPage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20.0),
+            selectedDesigner != null
+                ? ListTile(
+              leading: CircleAvatar(
+                backgroundImage: NetworkImage(selectedDesigner!['profileImage']!),
+              ),
+              title: Text(
+                selectedDesigner!['fullName'] ?? 'No Name',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                selectedDesigner!['phone'] ?? 'No Phone',
+                style: TextStyle(decoration: TextDecoration.underline),
+              ),
+              trailing: Icon(Icons.arrow_forward, color: Color(0xFFE47F46)),
+            )
+                : Text(
+              'Loading designer details...',
+              style: TextStyle(color: Colors.red),
+            ),
+            SizedBox(height: 20.0),
             Expanded(
               child: ListView.builder(
                 itemCount: designers.length,
@@ -74,7 +117,6 @@ class DesignersPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 5.0),
                     child: GestureDetector(
                       onTap: () {
-                        // Navigate to the DesignerDetailScreen with the designer's name
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -92,7 +134,7 @@ class DesignersPage extends StatelessWidget {
                           ),
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundImage: AssetImage(designer['image']!),
+                              backgroundImage: NetworkImage(designer['image']!),
                             ),
                             title: Text(
                               '${designer['name']} (Designer)',
@@ -100,9 +142,7 @@ class DesignersPage extends StatelessWidget {
                             ),
                             subtitle: Text(
                               designer['phone']!,
-                              style: TextStyle(
-                                decoration: TextDecoration.underline, // Add underline decoration
-                              ),
+                              style: TextStyle(decoration: TextDecoration.underline),
                             ),
                             trailing: Icon(Icons.arrow_forward, color: Color(0xFFE47F46)),
                           ),
@@ -112,7 +152,6 @@ class DesignersPage extends StatelessWidget {
                   );
                 },
               ),
-
             ),
           ],
         ),

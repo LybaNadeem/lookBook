@@ -1,67 +1,135 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ProductPreviewController extends ChangeNotifier {
-  // Variables to hold product data
+  bool isLoading = true;
   List<String> imageList = [];
   String dressTitle = '';
   String description = '';
-  String price = '';
-  String minimumOrderQuantity = '';
-  List<Color> colorsList = [];
-  List<String> sizesList = [];
-  bool isLoading = true; // Add the isLoading flag
+  double price = 0.0;
+  int minimumOrderQuantity = 0;
+  List<Color> colorsList = [Colors.red, Colors.green, Colors.blue]; // Example colors
+  List<String> sizesList = ['S', 'M', 'L']; // Example sizes
+  String photographerImageUrl = '';
+  String photographerName = '';
+  String photographerAbout = '';
+  String photographerEmail = '';
+  String photographerPhone = '';
+  String photographerSocialLink = '';
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  // Function to fetch data from Firebase
-  Future<void> getData() async {
-    isLoading = true; // Start loading
-    notifyListeners();
-
-    final user = _auth.currentUser;
-    if (user == null) {
-      isLoading = false; // End loading if user is not found
-      notifyListeners();
-      return;
-    }
-
-    CollectionReference productsRef = _firestore
-        .collection('users')
-        .doc(user.uid)
-        .collection('products');
-
+  Future<Map<String, dynamic>> fetchProductAndPhotographerData(var productId) async {
     try {
-      QuerySnapshot querySnapshot = await productsRef.get();
-      final allData = querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
-
-      if (allData.isNotEmpty) {
-        final productData = allData[0];
-
-        // Update product data
-        imageList = List<String>.from(productData['image'] ?? []);
-        dressTitle = productData['DressTitle'] ?? '';
-        description = productData['projectDescription'] ?? '';
-        price = productData['price'] ?? '';
-        minimumOrderQuantity = productData['minimumorder'] ?? '';
-
-        // Convert color codes from string to Color
-        colorsList = List<String>.from(productData['Colors'] ?? [])
-            .map((colorCode) => Color(int.parse("0xff$colorCode")))
-            .toList();
-
-        // Get sizes
-        sizesList = List<String>.from(productData['Sizes'] ?? []);
+      Map<String, dynamic> result = {};
+      // Fetch the main product document
+      DocumentSnapshot<Map<String, dynamic>> productDoc = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(productId)
+          .get();
+      if (productDoc.exists && productDoc.data() != null) {
+        // Access data in the product document
+        Map<String, dynamic> productData = productDoc.data()!;
+        result['product'] = productData;
+        // Fetch the subcollection "photographer" for this product
+        QuerySnapshot<Map<String, dynamic>> photographerSnapshot = await FirebaseFirestore.instance
+            .collection('products')
+            .doc(productId)
+            .collection('Photographer')
+            .get();
+        List<Map<String, dynamic>> photographerData = [];
+        for (var photographerDoc in photographerSnapshot.docs) {
+          photographerData.add(photographerDoc.data());
+        }
+        result['photographers'] = photographerData;
+      } else {
+        result['error'] = 'Product document does not exist.';
       }
+      return result;
     } catch (e) {
-      print("Error getting data: $e");
-    } finally {
-      isLoading = false; // End loading
-      notifyListeners();
+      return {'error':' Error fetching product and photographer data: $e'};
     }
   }
+
+  Future<void> getPhotographer(var productId) async {
+    isLoading = true;
+    notifyListeners(); // Notify UI to show loading state
+
+    try {
+      print("Fetching data from Firestore...");
+      final  photographer = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(productId).
+      collection('Photographer')// Replace with actual document ID
+          .get();
+
+      if (photographer.docs.isNotEmpty) {
+        print("Document data: ${photographer.docs}");
+
+        final data= photographer.docs.first.data();
+
+        // Parsing fields
+        photographerName = data['photographerName'] ?? '';
+        photographerImageUrl = data['imageUrl'] ?? '';
+        photographerAbout = data['about'] ?? '';
+        photographerEmail = data['email'] ?? '';
+        photographerPhone = data['phone'] ?? '';
+        photographerSocialLink = data['socialLink'] ?? '';
+
+        // Notify listeners to update the UI
+        notifyListeners();
+        print("Photographer fetched and parsed successfully.");
+      } else {
+        print("Photographer does not exist.");
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners(); // Notify UI that loading is complete
+    }
+  }
+
+  Future<void> getData(var productId) async {
+    isLoading = true;
+    notifyListeners(); // Notify UI to show loading state
+
+    try {
+      print("Fetching data from Firestore...");
+      final DocumentSnapshot doc = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(productId)// Replace with actual document ID
+          .get();
+
+      if (doc.exists) {
+        print("Document data: ${doc.data()}");
+
+        // Parsing fields
+        dressTitle = doc['DressTitle'] ?? '';
+        description = doc['projectDescription'] ?? '';
+        price = double.tryParse(doc['price'].toString()) ?? 0.0;
+        minimumOrderQuantity = int.tryParse(doc['minimumorder'].toString()) ?? 0;
+
+        // Parsing arrays
+        imageList = List<String>.from(doc['image'] ?? []);
+        colorsList = (doc['Colors'] as List)
+            .map((color) => Color(int.parse(color, radix: 16)))
+            .toList();
+        sizesList = List<String>.from(doc['Sizes'] ?? []);
+
+        // Notify listeners to update the UI
+        notifyListeners();
+        print("Data fetched and parsed successfully.");
+      } else {
+        print("Document does not exist.");
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners(); // Notify UI that loading is complete
+    }
+  }
+
+
+
+
 }

@@ -1,0 +1,41 @@
+import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+class BarcodeScannerPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Scan Barcode'),
+        centerTitle: true,
+      ),
+      body: Stack(
+        children: [
+          MobileScanner(
+            onDetect: (BarcodeCapture capture) {
+              final List<Barcode> barcodes = capture.barcodes;
+              if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
+                final String code = barcodes.first.rawValue!;
+                print('code$code');
+                Navigator.pop(context, code); // Return the barcode value to the previous screen
+              }
+            },
+          ),
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.03,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: SvgPicture.asset(
+                'assets/icons/barcode.svg',
+                width: MediaQuery.of(context).size.width * 0.2,
+                height: MediaQuery.of(context).size.width * 0.2,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

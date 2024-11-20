@@ -9,6 +9,9 @@ import 'dart:io';
 import 'ProductPreview.dart';
 
 class AddPhotographer extends StatefulWidget {
+  var productId;
+
+  AddPhotographer({Key? key, required this.productId}) : super(key: key);
   @override
   _AddPhotographerState createState() => _AddPhotographerState();
 }
@@ -53,13 +56,15 @@ class _AddPhotographerState extends State<AddPhotographer> {
   }
 
   Future<void> _submitData() async {
-    String userId = currentUser!.uid;
+    // Validate the image file
     if (_imageFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please upload an image.')),
       );
       return;
     }
+
+    // Validate the text fields
     if (photographerNameController.text.isEmpty ||
         socialLinkController.text.isEmpty ||
         phoneController.text.isEmpty ||
@@ -69,41 +74,59 @@ class _AddPhotographerState extends State<AddPhotographer> {
       );
       return;
     }
+
     try {
+      // Upload the image to Firebase and get the URL
       String imageUrl = await _uploadImageToFirebase(_imageFile!.path);
-      DocumentReference productDocRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('products')
-          .doc();
-      String productId = productDocRef.id;
+      print('imageUrl: $imageUrl');
+
+      // Reference to the specific product document
+      DocumentReference productDocRef = FirebaseFirestore.instance.collection('products').doc(widget.productId);
+
+      // Add or update the product details in the `products` collection
       await productDocRef.set({
         'imageUrl': imageUrl,
-        'productId': productId,
-      });
+        'productId': widget.productId,
+        'userId': currentUser!.uid, // Pass the userId
+        'timestamp': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      print('Product data saved: $imageUrl');
 
+      // Prepare photographer data
       final photographerData = {
-        'photographername': photographerNameController.text,
-        'sociallink': socialLinkController.text,
+        'photographerName': photographerNameController.text,
+        'socialLink': socialLinkController.text,
         'phone': phoneController.text,
         'email': emailController.text,
+        'userId': currentUser!.uid, // Pass the userId here too
+        'timestamp': FieldValue.serverTimestamp(),
       };
+      print('Photographer data: $photographerData');
+
+      // Add the photographer details to the 'Photographer' subcollection
       await productDocRef.collection('Photographer').add(photographerData);
+
+      // Navigate to the Product Preview page
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ProductPreviewStateful(),
+          builder: (context) => ProductPreviewStateful(productId: widget.productId),
         ),
       );
+
+      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Product and Photographer added successfully!')),
       );
     } catch (e) {
+      // Show error message in case of failure
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to add product and photographer: $e')),
       );
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {

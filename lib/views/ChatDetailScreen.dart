@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'designer_report.dart';
 
-import 'customer/Report.dart';
-
-class ChatScreen extends StatelessWidget {
+class Chatdetailscreen extends StatelessWidget {
   final String name; // Name of the selected contact
 
-  ChatScreen({required this.name}); // Constructor to accept name
+  Chatdetailscreen({required this.name}); // Constructor to accept name
 
   @override
   Widget build(BuildContext context) {
@@ -250,8 +249,7 @@ class ChatBubble extends StatelessWidget {
   void _handleReportAction(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) =>
-          Report()), // Ensure ReportPage is defined and imported
+      MaterialPageRoute(builder: (context) => DesignerReport()), // Ensure ReportPage is defined and imported
     );
   }
 
