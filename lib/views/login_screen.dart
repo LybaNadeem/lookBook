@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:untitled/views/HomePage.dart';
-import 'Add_product1.dart';
 import 'Admin/Dashboard.dart';
 import 'Signup_screen1.dart'; // Import your HomePage
 import 'customer/customer_home.dart';
@@ -41,8 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 250.0, // Fixed height to make it more adaptable
                 color: Colors.black,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 15.0, vertical: 54.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 70.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     // Align at the top to prevent overflow
@@ -76,8 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             border: Border.all(color: Colors.white, width: 1),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
                             // Consistent horizontal padding
                             child: Row(
 
@@ -212,6 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Center(
                       child: ElevatedButton(
                         onPressed: () async {
+
                           try {
                             UserCredential userCredential = await _auth.signInWithEmailAndPassword(
                               email: _emailController.text.trim(),
@@ -224,11 +222,14 @@ class _LoginScreenState extends State<LoginScreen> {
                               // Fetch device token
                               String? deviceToken = await FirebaseMessaging.instance.getToken();
 
-                              // Update Firestore with the new device token
+                              // Update Firestore with the new device token and default block field
                               if (deviceToken != null) {
-                                await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+                                DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+                                await userDoc.set({
                                   'deviceToken': deviceToken,
-                                });
+                                  // Add the default 'block' field
+                                }, SetOptions(merge: true)); // Use merge to avoid overwriting existing fields
                               }
 
                               // Check the user's document in Firestore
@@ -239,6 +240,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
                               if (documentSnapshot.exists) {
                                 Map<String, dynamic> data = documentSnapshot.data() as Map<String, dynamic>;
+
+                                bool isBlocked = data['block'] ?? false; // Check the 'block' field
+                                if (isBlocked) {
+                                  // Show alert if the user is blocked
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text("Account Blocked"),
+                                      content: Text("Your account has been blocked. Please contact support."),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.of(context).pop(),
+                                          child: Text("OK"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  return; // Stop further execution if the user is blocked
+                                }
+
                                 String role = data['role'] ?? '';
 
                                 // Save login state using SharedPreferences
@@ -253,17 +274,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if (hasMissingInformation) {
                                   Navigator.pushReplacement(
                                     context,
-                                    MaterialPageRoute(
-                                        builder: (context) => MissInformationScreen(userId: user.uid)),
+                                    MaterialPageRoute(builder: (context) => MissInformationScreen(userId: user.uid)),
                                   );
                                 } else {
                                   if (role == 'Designer') {
                                     Navigator.pushReplacement(
                                       context,
-                                      MaterialPageRoute(
-                                          builder: (context) => HomePage(
-                                            productId: '',
-                                          )),
+                                      MaterialPageRoute(builder: (context) => HomePage(productId: '')),
                                     );
                                   } else if (role == 'Customer') {
                                     Navigator.pushReplacement(
@@ -287,6 +304,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             print("Login failed: $e");
                           }
                         },
+
+
+
 
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFE47F46),
@@ -351,7 +371,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 40),
                     Row(
                       children: [
                         Expanded(
@@ -375,7 +395,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 30),
                     Center(
                       child: SvgPicture.asset(
                         'assets/icons/google and apple_icon.svg',
@@ -465,6 +485,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ElevatedButton(
                         onPressed: () {
                           sendPasswordReset(context);
+
+
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFFE47F46),
@@ -534,55 +556,5 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
 }
-void _showLoginSuccessDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    barrierDismissible: false, // Prevents dialog from closing by tapping outside
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        contentPadding: EdgeInsets.all(20),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.check_circle_outline, color: Colors.black, size: 50),
-            SizedBox(height: 20),
-            Text(
-              'Login Successful',
-              style: TextStyle(
-                fontSize: 18,
-                fontFamily: 'TenorSans',
-                color: Colors.black,
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddProduct1()), // Navigate to your homepage
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE47F46), // Orange color
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0), // Added padding
-              ),
-              child: const Text(
-                'DONE',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
 
-          ],
-        ),
-      );
-    },
-  );
-}
 

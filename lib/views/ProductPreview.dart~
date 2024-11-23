@@ -414,7 +414,7 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
           width: width * (isPortrait ? 0.9 : 0.6),
           child: ElevatedButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => Edit(productId:widget.productId,)));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Edit(productId: '',)));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFFE47F46),

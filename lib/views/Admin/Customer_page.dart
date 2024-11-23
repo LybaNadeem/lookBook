@@ -1,19 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../Controllers/Customer_controller.dart';
 import 'Customer_detail.dart';
-import 'Designer_detail.dart';
+// Change to Customer_detail screen
 
-class CustomerPage extends StatelessWidget {
-  final List<Map<String, String>> designers = [
-    {'name': 'Jhone Lane', 'phone': '+49 40 60774609', 'image': 'assets/images/antwon.jpg'},
-    {'name': 'Ronald Richards', 'phone': '+49 40 60774609', 'image': 'assets/images/brooke.jpg'},
-    {'name': 'Darlene Robertson', 'phone': '+49 40 60774609', 'image': 'assets/images/haley.jpg'},
-    {'name': 'Marvin McKinney', 'phone': '+49 40 60774609', 'image': 'assets/images/marvin.jpg'},
-    {'name': 'Savannah Nguyen', 'phone': '+49 40 60774609', 'image': 'assets/images/jake.jpg'},
-    {'name': 'Ralph Edwards', 'phone': '+49 40 60774609', 'image': 'assets/images/nathan.jpg'},
-    {'name': 'Annette Black', 'phone': '+49 40 60774609', 'image': 'assets/images/jamie.jpg'},
-  ];
+class CustomerPage extends StatefulWidget {
+  @override
+  _CustomerPageState createState() => _CustomerPageState();
+}
+
+class _CustomerPageState extends State<CustomerPage> {
+  final CustomerController _customerController =CustomerController();  // Change to customer controller
+  List<Map<String, dynamic>> customers = [];  // Change variable name to 'customers'
+  bool isLoading = true;
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    getCustomersByRoles();  // Fetch the customers by role on page load
+  }
+
+  void getCustomersByRoles() async {
+    try {
+      // Fetch the customers whose role is 'customer'
+      List<Map<String, dynamic>> fetchedCustomers = await _customerController.getCustomersByRole('Customer');  // Change to 'Customer'
+      setState(() {
+        customers = fetchedCustomers;
+        isLoading = false;  // Set loading to false once data is fetched
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;  // Set loading to false in case of error
+      });
+      print('Error fetching customers: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,14 +49,14 @@ class CustomerPage extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context); // Navigate back on button press
+            Navigator.pop(context);
           },
         ),
         centerTitle: true,
         title: Column(
           children: [
             Text(
-              "LOOK\n      BOOK",
+              "LOOK\n BOOK",
               style: TextStyle(fontFamily: 'Agne', fontWeight: FontWeight.bold),
             ),
           ],
@@ -40,11 +64,13 @@ class CustomerPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Customers',
+              'Customers',  // Change label to 'Customers'
               style: TextStyle(
                 fontSize: 24,
                 fontFamily: 'TenorSans',
@@ -65,80 +91,46 @@ class CustomerPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 30.0),
+            SizedBox(height: 20.0),
+            // Dynamically display customer details in a list
             Expanded(
               child: ListView.builder(
-                itemCount: designers.length,
+                itemCount: customers.length,
                 itemBuilder: (context, index) {
-                  final designer = designers[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        // Navigate to the DesignerDetailScreen with the designer's name
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CustomerDetailScreen(
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: 90.0,
-                        child: Card(
-                          shadowColor: Color(0xFFA5B3F6).withOpacity(0.1),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.transparent, width: 2),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ListView.builder(
-                            itemCount: designers.length,
-                            itemBuilder: (context, index) {
-                              final designer = designers[index];
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 5.0),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // Navigate to the DesignerDetailScreen with the designer's name
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => DesignerDetail(),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    height: 90.0,
-                                    child: Card(
-                                      shadowColor: Color(0xFF8F9CD6).withOpacity(0.05),
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(color: Colors.transparent, width: 2),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: ListTile(
-                                        leading: CircleAvatar(
-                                          backgroundImage: AssetImage(designer['image']!),
-                                        ),
-                                        title: Text(
-                                          '${designer['name']} (Designer)',
-                                          style: TextStyle(fontWeight: FontWeight.bold),
-                                        ),
-                                        subtitle: Text(
-                                          designer['phone']!,
-                                          style: TextStyle(
-                                            decoration: TextDecoration.underline, // Add underline decoration
-                                          ),
-                                        ),
-                                        trailing: Icon(Icons.arrow_forward, color: Color(0xFFE47F46)),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
+                  return GestureDetector(
+                    onTap: () {
+                      // Pass userId and index to CustomerDetailScreen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CustomerDetailScreen(
+                            userId: customers[index]['userId'],  // Pass the userId
+                            index: index,  // Pass the index
                           ),
                         ),
+                      );
+                    },
+
+                    child: Card(
+                      elevation: 4.0, // Adds shadow and elevation
+                      shadowColor: Colors.black.withOpacity(0.2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          // Use the profileImage from the current customer
+                          backgroundImage: NetworkImage(customers[index]['profileImage'] ?? 'https://via.placeholder.com/150'),
+                        ),
+                        title: Text(
+                          customers[index]['fullName'] ?? 'No Name',  // Use fullName from current customer
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          customers[index]['phone'] ?? 'No Phone',  // Use phone from current customer
+                          style: TextStyle(decoration: TextDecoration.underline),
+                        ),
+                        trailing: Icon(Icons.arrow_forward, color: Color(0xFFE47F46)),
                       ),
                     ),
                   );

@@ -49,30 +49,31 @@ class ProductPreviewController extends ChangeNotifier {
     }
   }
 
-  Future<void> getPhotographer(var productId) async {
+  Future<void> getPhotographer(var productId, var photographerId) async {
     isLoading = true;
     notifyListeners(); // Notify UI to show loading state
 
     try {
-      print("Fetching data from Firestore...");
-      final  photographer = await FirebaseFirestore.instance
+      print("Fetching photographer data from Firestore...");
+      final photographerDoc = await FirebaseFirestore.instance
           .collection('products')
-          .doc(productId).
-      collection('Photographer')// Replace with actual document ID
+          .doc(productId)
+          .collection('Photographer')
+          .doc(photographerId) // Use photographerId here to get a specific document
           .get();
 
-      if (photographer.docs.isNotEmpty) {
-        print("Document data: ${photographer.docs}");
+      if (photographerDoc.exists) {
+        print("Photographer Document data: ${photographerDoc.data()}");
 
-        final data= photographer.docs.first.data();
+        final data = photographerDoc.data();
 
         // Parsing fields
-        photographerName = data['photographerName'] ?? '';
-        photographerImageUrl = data['imageUrl'] ?? '';
-        photographerAbout = data['about'] ?? '';
-        photographerEmail = data['email'] ?? '';
-        photographerPhone = data['phone'] ?? '';
-        photographerSocialLink = data['socialLink'] ?? '';
+        photographerName = data?['photographerName'] ?? '';
+        photographerImageUrl = data?['imageUrl'] ?? '';
+        photographerAbout = data?['about'] ?? '';
+        photographerEmail = data?['email'] ?? '';
+        photographerPhone = data?['phone'] ?? '';
+        photographerSocialLink = data?['socialLink'] ?? '';
 
         // Notify listeners to update the UI
         notifyListeners();
@@ -87,6 +88,7 @@ class ProductPreviewController extends ChangeNotifier {
       notifyListeners(); // Notify UI that loading is complete
     }
   }
+
 
   Future<void> getData(var productId) async {
     isLoading = true;

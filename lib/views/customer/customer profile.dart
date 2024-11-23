@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore import
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../MessageApp.dart';
+import 'Barcode_scanner.dart';
+import 'Notification.dart';
+import 'customer_home.dart'; // Firestore import
 
 class ProfileCustomerScreen extends StatefulWidget {
   @override
@@ -9,6 +14,7 @@ class ProfileCustomerScreen extends StatefulWidget {
 
 class _ProfileCustomerScreenState extends State<ProfileCustomerScreen> {
   User? currentUser;
+  int _currentIndex = 0;
   Map<String, dynamic>? profileData; // Store fetched profile data
   bool isLoading = true; // Loading state
 
@@ -17,6 +23,38 @@ class _ProfileCustomerScreenState extends State<ProfileCustomerScreen> {
     super.initState();
     fetchProfileData();
   }
+  void onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+
+    if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CustomerHomePage(), // Replace with your actual home page widget
+        ),
+      );
+    } else if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MessagesApp(id: ''),
+        ),
+      );
+    } else if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => NotificationScreen()),
+      );
+    } else if (index == 4) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ProfileCustomerScreen()),
+      );
+    }
+  }
+
 
   /// Fetch current user data and check role
   Future<void> fetchProfileData() async {
@@ -190,6 +228,84 @@ class _ProfileCustomerScreenState extends State<ProfileCustomerScreen> {
             ),
           ],
         ),
+
+      ),
+
+
+      bottomNavigationBar: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _currentIndex,
+            selectedItemColor: Color(0xFFE47F46),
+            unselectedItemColor: Colors.grey,
+            onTap: onTabTapped,
+            items: [
+              BottomNavigationBarItem(
+                icon: SvgPicture.asset(
+                  'assets/icons/Home.svg',
+                  width: MediaQuery.of(context).size.width * 0.075, // 7.5% of screen width
+                  height: MediaQuery.of(context).size.height * 0.025, // 2.5% of screen height
+                ),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: SvgPicture.asset(
+                  'assets/icons/chat.svg',
+                  width: MediaQuery.of(context).size.width * 0.06, // 6% of screen width
+                  height: MediaQuery.of(context).size.height * 0.03, // 3% of screen height
+                ),
+                label: 'Chat',
+              ),
+              BottomNavigationBarItem(
+                icon: SizedBox(width: 0),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: SvgPicture.asset(
+                  'assets/icons/notification-bing.svg',
+                  width: MediaQuery.of(context).size.width * 0.075, // 7.5% of screen width
+                  height: MediaQuery.of(context).size.height * 0.025, // 2.5% of screen height
+                ),
+                label: 'Notification',
+              ),
+              BottomNavigationBarItem(
+                icon: SvgPicture.asset(
+                  'assets/icons/profile.svg',
+                  width: MediaQuery.of(context).size.width * 0.06, // 6% of screen width
+                  height: MediaQuery.of(context).size.height * 0.03, // 3% of screen height
+                ),
+                label: 'Profile',
+              ),
+            ],
+          ),
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.03,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => BarcodeScannerPage()),
+                  ).then((scannedCode) {
+                    if (scannedCode != null) {
+                      print("Scanned Barcode: $scannedCode");
+                      // Handle the scanned code, e.g., display it or perform an action
+                    }
+                  });
+                },
+                child: SvgPicture.asset(
+                  'assets/icons/barcode.svg',
+                  width: MediaQuery.of(context).size.width * 0.2,
+                  height: MediaQuery.of(context).size.width * 0.2,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -208,6 +324,8 @@ class _ProfileCustomerScreenState extends State<ProfileCustomerScreen> {
         ),
       ),
     );
+
   }
+
 
 }

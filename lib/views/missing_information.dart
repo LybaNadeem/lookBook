@@ -100,7 +100,7 @@ class _MissInformationScreenState extends State<MissInformationScreen> {
                       'FILL YOUR MISSING INFORMATION',
                       style: TextStyle(
                         fontFamily: 'Agne',
-                        fontSize: 18,
+                        fontSize: 25,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -119,13 +119,13 @@ class _MissInformationScreenState extends State<MissInformationScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(left: 10.0),
+                            padding: const EdgeInsets.only(left: 20.0),
                             child: Text(
-                              "REQUIRED INFORMATION ",
+                              "Required Fields ",
                               style: TextStyle(
                                 fontFamily: 'TenorSans',
                                 fontWeight: FontWeight.bold,
-                                fontSize: 8,
+                                fontSize: 12,
                                 color: Colors.white,
                               ),
                             ),
@@ -163,30 +163,38 @@ class _MissInformationScreenState extends State<MissInformationScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ElevatedButton(
-                        onPressed: _submitInformation, // Submit information
-                        style: ElevatedButton.styleFrom(
-
-                          backgroundColor: Color(0xFFE47F46),
-                          minimumSize: Size(double.infinity, 50),
-                        ),
-                        child: Text(
-                          'UPDATE',
-                          style: TextStyle(
-                            fontFamily: 'Outfit_Variable_wght',
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  onPressed: _submitInformation, // Submit information
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFE47F46),
+                    minimumSize: Size(double.infinity, 50),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min, // Adjusts the Row size
+                    mainAxisAlignment: MainAxisAlignment.center, // Centers the content
+                    children: [
+                      Text(
+                        'UPDATE',
+                        style: TextStyle(
+                          fontFamily: 'Outfit_Variable_wght',
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                      SizedBox(width: 8), // Space between text and icon
+                      SvgPicture.asset(
+                        'assets/icons/arrow_icon.svg', // Path to your SVG
+                        width: 16, // Set width of the icon
+                        height: 16, // Set height of the icon
+                        color: Colors.white, // Optional: Change the icon color
+                      ),
+                    ],
+                  ),
+                ),
+
               ),
 
-                  SvgPicture.asset(
-                    'assets/icons/arrow_icon.svg', // Path to your SVG
-                    width: 16, // Set width of the icon
-                    height: 16, // Set height of the icon
-                    // Optional: Change the icon color if needed
-                  )
+
                 ],
               ),
             ),

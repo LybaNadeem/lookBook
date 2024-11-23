@@ -90,12 +90,13 @@ class _OnboardingScreenState extends State<WelcomeScreen> {
                   'FASHION',
                   style: TextStyle(
                     fontFamily: 'Agne',
-                    fontSize: 49,
+                    fontSize: 54,
+                    letterSpacing: 2.5,
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 8),
+                SizedBox(height:0.5),
                 Text(
                   'Discover the latest trends, styles, and exclusive collections.',
                   style: TextStyle(

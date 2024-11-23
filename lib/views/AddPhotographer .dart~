@@ -11,7 +11,6 @@ import 'ProductPreview.dart';
 class AddPhotographer extends StatefulWidget {
   var productId;
 
-
   AddPhotographer({Key? key, required this.productId}) : super(key: key);
   @override
   _AddPhotographerState createState() => _AddPhotographerState();
@@ -117,7 +116,7 @@ class _AddPhotographerState extends State<AddPhotographer> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ProductPreviewStateful(productId: widget.productId, photgrapherId: null,),
+          builder: (context) => ProductPreviewStateful(productId: widget.productId),
         ),
       );
 

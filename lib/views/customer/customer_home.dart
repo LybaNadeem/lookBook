@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:untitled/views/customer/customer%20profile.dart';
-
+import '../../Controllers/customerhome_controller.dart';
 import '../Logout.dart';
 import '../MessageApp.dart';
-import '../ProfileScreen.dart';
 import 'Barcode_scanner.dart';
 import 'Notification.dart';
-import 'customer_home2.dart';
+import 'customer profile.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomerHomePage extends StatefulWidget {
   @override
@@ -16,13 +14,21 @@ class CustomerHomePage extends StatefulWidget {
 }
 
 class _CustomerHomePageState extends State<CustomerHomePage> {
+  final CustomerHomeController _controller = CustomerHomeController();
+  bool wishlistVisible = false;
   int _currentIndex = 0;
   bool showCalendar = false;
   String displayText = 'Islamabad'; // Default event text
   DateTime selectedDate = DateTime.now();
   DateTime focusedDate = DateTime.now();
 
-  // Method to handle tab tap
+  @override
+  void initState() {
+    super.initState();
+    _loadWishlistProducts();
+    print('is it working');
+  }
+
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
@@ -31,12 +37,9 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MessagesApp(id: '',)),
-      );
-    } else if (index == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => CustomerHome2()),
+        MaterialPageRoute(
+          builder: (context) => MessagesApp(id: ''),
+        ),
       );
     } else if (index == 3) {
       Navigator.push(
@@ -222,7 +225,9 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => CustomerHome2()), // Ensure you have imported CustomerHome2
+                            MaterialPageRoute(
+                              builder: (context) => CustomerHomePage(),
+                            ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -234,8 +239,6 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                         ),
                         child: Text('Find Result'),
                       ),
-
-
                   ],
                 ),
               ),
@@ -246,12 +249,13 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
     );
   }
 
-
+  Future<void> _loadWishlistProducts() async {
+    await _controller.fetchWishlistProducts(); // Fetch products
+    setState(() {}); // Update UI after fetching data
+  }
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -275,257 +279,328 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
         ),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: Column(
-            children: [
-              TextField(
-                readOnly: true,
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(vertical: 5),
-                  filled: true,
-                  fillColor: const Color(0xFFD9D9D9).withOpacity(0.24),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: Colors.black.withOpacity(0.50),
-                    size: 24,
-                  ),
-                  hintText: 'search',
-                  hintStyle: TextStyle(
-                    color: const Color(0xFF8F9098),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide.none,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: SvgPicture.asset('assets/icons/filter.svg'),
-                    onPressed: _showFilterOptions,
-                  ),
-                ),
-              ),
-              SizedBox(height: 10),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "No products to show",
-                    style: TextStyle(
-                      fontFamily: 'TenorSans',
-                      fontSize: 20,
-                      color: Colors.black,
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Column(
+              children: [
+                TextField(
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(vertical: 5),
+                    filled: true,
+                    fillColor: const Color(0xFFD9D9D9).withOpacity(0.24),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: Colors.black.withOpacity(0.50),
+                      size: 24,
+                    ),
+                    hintText: 'search',
+                    hintStyle: TextStyle(
+                      color: const Color(0xFF8F9098),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: SvgPicture.asset('assets/icons/filter.svg'),
+                      onPressed: _showFilterOptions,
                     ),
                   ),
-                  SizedBox(height: 60), // Space between title and icon
-                  SvgPicture.asset(
-                    'assets/icons/cart.svg', // Path to your cart icon
-                    width: 60,
-                    height: 60,
-                  ),
-                  SizedBox(height: 50), // Space between the cart icon and black container
-
-                  // First (Black) Container with text and SVG icons
-                  Stack(
-                    children: [
-                      Container(
-                        color: Colors.black, // Set the color to black
-                        height: 296, // Adjust the height of the container
-                        width: 500, // Adjust the width of the container
-                      ),
-                      Positioned(
-                        top: 20, // Position the "LOOK BOOK" text closer to the top
-                        left: 0,
-                        right: 0,
-                        child: Text(
-                          "LOOK\n      BOOK",
-                          style: TextStyle(
-                            fontFamily: 'Agne',
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white, // Set text color to white for visibility
-                            fontSize: 24, // Adjust the font size
-                          ),
-                          textAlign: TextAlign.center, // Center align the text
-                        ),
-                      ),
-                      Positioned(
-                        top: 120, // Position this text below the "LOOK BOOK" text
-                        left: 40,
-                        right: 40,
-                        child: Text(
-                          "Making a luxurious lifestyle accessible for a generous group of women is our daily drive.",
+                ),
+                Column(
+                  children: [
+                    _controller.products.isEmpty
+                        ? Column(
+                      children: [
+                        Text(
+                          "No products to show",
                           style: TextStyle(
                             fontFamily: 'TenorSans',
-                            fontWeight: FontWeight.normal,
-                            color: Colors.white.withOpacity(0.7), // Slightly transparent white for softer look
-                            fontSize: 16, // Adjust font size as necessary
+                            fontSize: 20,
+                            color: Colors.black,
                           ),
-                          textAlign: TextAlign.center, // Center align the text
                         ),
-                      ),
-                      Positioned(
-                        top: 190, // Position the SVG icons below the text
-                        left: 0,
-                        right: 0,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center, // Center the SVG icons
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/3.svg',
-                              width: 15,
-                              height: 15,
-                            ),
-                            SizedBox(height: 10), // Space between the two SVGs
-                            SvgPicture.asset(
-                              'assets/icons/doodle.svg',
-                              width: 76,
-                              height: 45,
-                            ),
-                          ],
+                        SizedBox(height: 60), // Space between title and icon
+                        SvgPicture.asset(
+                          'assets/icons/cart.svg', // Path to your cart icon
+                          width: 60,
+                          height: 60,
                         ),
+                      ],
+                    )
+                        : GridView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.7,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
                       ),
-                    ],
-                  ),
-
-                  // Add a small gap between the black and white containers
-
-                  // Second (White) Container with Group 29.svg
-                  Column(
-                    children: [
-                      // Existing Container
-                      Container(
-                        color: Colors.white, // Set the color to white
-                        height: 250, // Adjust the height to accommodate all content
-                        width: 500, // Adjust the width of the container
-                        alignment: Alignment.center, // Center the content
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/Group 29.svg', // Path to your Group 29.svg
-                              width: 27, // Adjust the size of the SVG as needed
-                              height: 27,
-                            ),
-                            SizedBox(height: 10), // Space between Group 29.svg and 3.svg
-                            SvgPicture.asset(
-                              'assets/icons/3.svg', // Path to your 3.svg
-                              width: 10, // Adjust the size of the SVG as needed
-                              height: 10,
-                            ),
-                            SizedBox(height: 10), // Space between the SVGs and the text
-                            Column(
+                      itemCount: _controller.products.length,
+                      itemBuilder: (context, index) {
+                        final product = _controller.products[index];
+                        return Card(
+                          color: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          child: GestureDetector(
+                            onTap: () {
+                              // Optional: Add navigation or interaction on product tap
+                              print("Tapped on ${product['title']}");
+                            },
+                            child: Column(
                               children: [
-                                Text(
-                                  'support@fashionstore', // Email text
-                                  style: TextStyle(
-                                    fontFamily: 'TenorSans',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.black,
+                                // Product Image
+                                Container(
+                                  height: 150,
+                                  width: 200,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    image: DecorationImage(
+                                      image: product['imageUrl'] != null
+                                          ? NetworkImage(product['imageUrl'])
+                                          : AssetImage(
+                                          'assets/placeholder.png') as ImageProvider,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-                                SizedBox(height: 5), // Space between email and phone number
-                                Text(
-                                  '+12 123 456 7896', // Phone number text
-                                  style: TextStyle(
-                                    fontFamily: 'TenorSans',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                SizedBox(height: 5), // Space between phone number and timing text
-                                Text(
-                                  '08:00 - 22:00 - Everyday', // Working hours text
-                                  style: TextStyle(
-                                    fontFamily: 'TenorSans',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                SizedBox(height: 5), // Space between timing text and new row
-                                SvgPicture.asset(
-                                  'assets/icons/3.svg', // Path to your 3.svg
-                                  width: 10, // Adjust the size of the SVG as needed
-                                  height: 10,
-                                ),
-                                SizedBox(height: 15), // Space between timing text and new row
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.23), // Adjust horizontal padding based on screen width
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start, // Align the row content to the start
+                                // Product Details
+                                Container(
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
-                                      Padding(
-                                        padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.06), // Space between About and Contact text
-                                        child: Text(
-                                          'About', // About text
-                                          style: TextStyle(
-                                            fontFamily: 'TenorSans',
-                                            fontSize: MediaQuery.of(context).size.width * 0.04, // Adjust font size based on screen width
-                                            // Make it bold to stand out
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.08), // Space between Contact and Blog text
-                                        child: Text(
-                                          'Contact', // Contact text
-                                          style: TextStyle(
-                                            fontFamily: 'TenorSans',
-                                            fontSize: MediaQuery.of(context).size.width * 0.04, // Adjust font size based on screen width
-                                            // Make it bold to stand out
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ),
                                       Text(
-                                        'Blog', // Blog text
+                                        product['title'] ?? "Unknown Product",
+                                        textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontFamily: 'TenorSans',
-                                          fontSize: MediaQuery.of(context).size.width * 0.04, // Adjust font size based on screen width
-                                          // Make it bold to stand out
+                                          fontSize: 16,
                                           color: Colors.black,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        '\$${product['price'] ?? "0.00"}',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Color(0xFFE47F46),
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 5), // Space between the two containers
-
-                      // New Container
-                      Container(
-                        color: Colors.grey[200], // Set the color to a light grey or any desired color
-                        height: 100, // Set the height for the new container
-                        width: 500, // Set the width for the new container
-                        alignment: Alignment.center, // Center the content
-                        child: Text(
-                          'Designed by fashionstore', // Centered text
-                          style: TextStyle(
-                            fontFamily: 'TenorSans',
-                            fontSize: 16, // Adjust the font size as needed
-                            // Make it bold for emphasis
-                            color: Colors.black, // Set the text color
                           ),
-                        ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: 50),
+            Stack(
+              children: [
+                Container(
+                  color: Colors.black, // Set the color to black
+                  height: 296, // Adjust the height of the container
+                  width: 500, // Adjust the width of the container
+                ),
+                Positioned(
+                  top: 20, // Position the "LOOK BOOK" text closer to the top
+                  left: 0,
+                  right: 0,
+                  child: Text(
+                    "LOOK\n      BOOK",
+                    style: TextStyle(
+                      fontFamily: 'Agne',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white, // Set text color to white for visibility
+                      fontSize: 24, // Adjust the font size
+                    ),
+                    textAlign: TextAlign.center, // Center align the text
+                  ),
+                ),
+                Positioned(
+                  top: 120, // Position this text below the "LOOK BOOK" text
+                  left: 40,
+                  right: 40,
+                  child: Text(
+                    "Making a luxurious lifestyle accessible for a generous group of women is our daily drive.",
+                    style: TextStyle(
+                      fontFamily: 'TenorSans',
+                      fontWeight: FontWeight.normal,
+                      color: Colors.white.withOpacity(0.7), // Slightly transparent white for softer look
+                      fontSize: 16, // Adjust font size as necessary
+                    ),
+                    textAlign: TextAlign.center, // Center align the text
+                  ),
+                ),
+                Positioned(
+                  top: 190, // Position the SVG icons below the text
+                  left: 0,
+                  right: 0,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center, // Center the SVG icons
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/3.svg',
+                        width: 15,
+                        height: 15,
+                      ),
+                      SizedBox(height: 10), // Space between the two SVGs
+                      SvgPicture.asset(
+                        'assets/icons/doodle.svg',
+                        width: 76,
+                        height: 45,
                       ),
                     ],
                   ),
-
-
-                ],
-
-              )
-            ],
-          ),
+                ),
+              ],
+            ),
+            SizedBox(height: 50), // Space between the cart icon and black container
+            Column(
+              children: [
+                Container(
+                  color: Colors.white, // Set the color to white
+                  height: 250, // Adjust the height to accommodate all content
+                  width: 500, // Adjust the width of the container
+                  alignment: Alignment.center, // Center the content
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/Group 29.svg', // Path to your Group 29.svg
+                        width: 27, // Adjust the size of the SVG as needed
+                        height: 27,
+                      ),
+                      SizedBox(height: 10), // Space between Group 29.svg and 3.svg
+                      SvgPicture.asset(
+                        'assets/icons/3.svg', // Path to your 3.svg
+                        width: 10, // Adjust the size of the SVG as needed
+                        height: 10,
+                      ),
+                      SizedBox(height: 10), // Space between the SVGs and the text
+                      Column(
+                        children: [
+                          Text(
+                            'support@fashionstore', // Email text
+                            style: TextStyle(
+                              fontFamily: 'TenorSans',
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(height: 5), // Space between email and phone number
+                          Text(
+                            '+12 123 456 7896', // Phone number text
+                            style: TextStyle(
+                              fontFamily: 'TenorSans',
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(height: 5), // Space between phone number and timing text
+                          Text(
+                            '08:00 - 22:00 - Everyday', // Working hours text
+                            style: TextStyle(
+                              fontFamily: 'TenorSans',
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(height: 5), // Space between timing text and new row
+                          SvgPicture.asset(
+                            'assets/icons/3.svg', // Path to your 3.svg
+                            width: 10, // Adjust the size of the SVG as needed
+                            height: 10,
+                          ),
+                          SizedBox(height: 15), // Space between timing text and new row
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: MediaQuery.of(context).size.width * 0.20), // Adjust horizontal padding based on screen width
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start, // Align the row content to the start
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      right: MediaQuery.of(context).size.width * 0.06), // Space between About and Contact text
+                                  child: Text(
+                                    'About', // About text
+                                    style: TextStyle(
+                                      fontFamily: 'TenorSans',
+                                      fontSize: MediaQuery.of(context).size.width * 0.04, // Adjust font size based on screen width
+                                      // Make it bold to stand out
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      right: MediaQuery.of(context).size.width * 0.08), // Space between Contact and Blog text
+                                  child: Text(
+                                    'Contact', // Contact text
+                                    style: TextStyle(
+                                      fontFamily: 'TenorSans',
+                                      fontSize: MediaQuery.of(context).size.width * 0.04, // Adjust font size based on screen width
+                                      // Make it bold to stand out
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  'Blog', // Blog text
+                                  style: TextStyle(
+                                    fontFamily: 'TenorSans',
+                                    fontSize: MediaQuery.of(context).size.width * 0.04, // Adjust font size based on screen width
+                                    // Make it bold to stand out
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 5), // Space between the two containers
+            Container(
+              color: Colors.grey[200], // Set the color to a light grey or any desired color
+              height: 100, // Set the height for the new container
+              width: 500, // Set the width for the new container
+              alignment: Alignment.center, // Center the content
+              child: Text(
+                'Designed by fashionstore', // Centered text
+                style: TextStyle(
+                  fontFamily: 'TenorSans',
+                  fontSize: 16, // Adjust the font size as needed
+                  // Make it bold for emphasis
+                  color: Colors.black, // Set the text color
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: Stack(
@@ -603,7 +678,6 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           ),
         ],
       ),
-
     );
   }
 }

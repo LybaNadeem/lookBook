@@ -285,7 +285,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => DesignerDetail()),
+                                    MaterialPageRoute(builder: (context) => DesignerDetailScreen ()),
                                   );
                                 },
 
@@ -345,10 +345,7 @@ class _ProductDetailState extends State<ProductDetail> {
                               SizedBox(height: 5),
                               InkWell(
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => CustomerDetailScreen()),
-                                  );
+
                                   // Show the bottom sheet when the SVG icon is tapped
 
                                 },

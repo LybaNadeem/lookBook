@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../Controllers/Homepage_controller.dart';
 import 'Add_product1.dart';
+import 'Designer_notification.dart';
 import 'Logout.dart';
 import 'MessageApp.dart';
 import 'Notification_services.dart';
@@ -53,7 +54,12 @@ class _HomePageState extends State<HomePage> {
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MessagesApp(id: '',)),
+        MaterialPageRoute(builder: (context) => MessagesApp(id: '')),
+      );
+    } else if (index == 2) { // Assuming index 2 is for DesignerNotification
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => DesignerNotification()),
       );
     } else if (index == 3) {
       Navigator.push(
@@ -62,6 +68,7 @@ class _HomePageState extends State<HomePage> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +118,7 @@ class _HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => ProductPreviewStateful(
-                            productId: product['productId'], // Pass specific product ID if needed
+                            productId: product['productId'], photgrapherId: photographer['photgrapherId'], // Pass specific product ID if needed
                           ),
                         ),
                       );

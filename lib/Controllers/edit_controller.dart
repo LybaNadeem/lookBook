@@ -8,12 +8,11 @@ class edit_controller extends ChangeNotifier {
   String description = '';
   double price = 0.0;
   int minimumOrderQuantity = 0;
-  DateTime? eventDate; // Added for event date
   List<Color> colorsList = [Colors.red, Colors.green, Colors.blue]; // Example colors
   List<String> sizesList = ['S', 'M', 'L']; // Example sizes
-
-  // Photographer fields
+  String photographerImageUrl = '';
   String photographerName = '';
+  String photographerAbout = '';
   String photographerEmail = '';
   String photographerPhone = '';
   String photographerSocialLink = '';
@@ -40,9 +39,6 @@ class edit_controller extends ChangeNotifier {
             .map((color) => Color(int.parse(color, radix: 16)))
             .toList();
         sizesList = List<String>.from(data['Sizes'] ?? []);
-        eventDate = data['eventDate'] != null
-            ? (data['eventDate'] as Timestamp).toDate()
-            : null;
       }
 
       // Fetch the first photographer subcollection entry
@@ -83,6 +79,15 @@ class edit_controller extends ChangeNotifier {
     } finally {
       isLoading = false;
       notifyListeners();
+    }
+  }
+  Future<void> deleteProduct(var productId) async {
+    try {
+      await FirebaseFirestore.instance.collection('products').doc(productId).delete();
+      notifyListeners();  // This should be in the controller since it's a ChangeNotifier
+    } catch (e) {
+      print("Error deleting product: $e");
+      // Handle error appropriately (e.g., show a message to the user)
     }
   }
 }

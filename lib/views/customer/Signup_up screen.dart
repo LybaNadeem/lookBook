@@ -197,7 +197,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     hintText: 'Type full name',
                     controller: _fullNameController,
                   ),
-                  SizedBox(height: screenHeight * 0.03),
+                  SizedBox(height: screenHeight * 0.02),
                   // Email Field
                   Text('Email', style: TextStyle(fontFamily: 'TenorSans', fontSize: screenHeight * 0.02)),
                   SizedBox(height: screenHeight * 0.01),
@@ -205,14 +205,14 @@ class _SignupScreenState extends State<SignupScreen> {
                     hintText: 'Type email',
                     controller: _emailController,
                   ),
-                  SizedBox(height: screenHeight * 0.03),
+                  SizedBox(height: screenHeight * 0.02),
                   Text('Phone Number', style: TextStyle(fontFamily: 'TenorSans', fontSize: screenHeight * 0.02)),
                   SizedBox(height: screenHeight * 0.01),
                   CustomTextField(
                     hintText: 'Type phone number',
                     controller: _phoneController,
                   ),
-                  SizedBox(height: screenHeight * 0.03),
+                  SizedBox(height: screenHeight * 0.02),
                   Text('Password', style: TextStyle(fontFamily: 'TenorSans', fontSize: screenHeight * 0.02)),
                   SizedBox(height: screenHeight * 0.01),
                   CustomTextField(

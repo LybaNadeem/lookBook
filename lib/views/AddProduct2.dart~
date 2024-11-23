@@ -39,7 +39,7 @@ class _AddProduct2State extends State<AddProduct2>
   TextEditingController instagramController = TextEditingController();
   TextEditingController linkedinController = TextEditingController();
   TextEditingController BarcodeController = TextEditingController();
-
+  TextEditingController EventdateController = TextEditingController();
   TextEditingController EventController = TextEditingController();
   TextEditingController colorsController = TextEditingController();
   TextEditingController sizesController = TextEditingController();
@@ -127,7 +127,7 @@ class _AddProduct2State extends State<AddProduct2>
         instagramController.text.isEmpty ||
         linkedinController.text.isEmpty ||
         BarcodeController.text.isEmpty ||
-
+        EventdateController.text.isEmpty ||
         EventController.text.isEmpty ||
         colorsController.text.isEmpty ||
         sizesController.text.isEmpty) {
@@ -150,6 +150,7 @@ class _AddProduct2State extends State<AddProduct2>
       'instagram': instagramController.text,
       'linkedin': linkedinController.text,
       'Barcode': BarcodeController.text,
+      'Eventdate': EventdateController.text,
       'Event': EventController.text,
       'Colors': [colorsController.text], // Store colors in a list
       'Sizes': [sizesController.text], // Store sizes in a list
@@ -858,7 +859,7 @@ class _AddProduct2State extends State<AddProduct2>
                       }
                     },
                   ),
-
+                
 
                   SizedBox(height:height * 0.030),
                   //// Submit button to submit the product details

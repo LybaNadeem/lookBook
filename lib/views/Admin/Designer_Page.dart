@@ -1,40 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../Controllers/designer_controller.dart';
 import 'Designer_detail.dart';
+
 class DesignersPage extends StatefulWidget {
   @override
   _DesignersPageState createState() => _DesignersPageState();
 }
+
 class _DesignersPageState extends State<DesignersPage> {
   final DesignerController _designerController = DesignerController();
-  List<Map<String, String>> designers = [];
+  List<Map<String, dynamic>> designers = [];  // To store designers data
   bool isLoading = true;
-  Map<String, String>? selectedDesigner;
+
+
   @override
   void initState() {
     super.initState();
-    _fetchDesigners();
-    displayDesignerInfo(); // Fetch designer details on page load
+    getDesignersByRoles();  // Fetch the designers by role on page load
   }
-  void _fetchDesigners() async {
-    designers = await _designerController.getDesigners();
-    setState(() {
-      isLoading = false;
-    });
-  }
-  // Function to display the specific designer's information in a ListTile format
-  Future<void> displayDesignerInfo() async {
-    String userId = 'sDl8DYgRX3SHQYTXbhftOxNBR1W2';
+
+  void getDesignersByRoles() async {
     try {
-      Map<String, String> designerInfo = await _designerController.getDesignerById(userId);
+      // Fetch the designers whose role is 'designer'
+      List<Map<String, dynamic>> fetchedDesigners = await _designerController.getDesignersByRole('Designer');
       setState(() {
-        selectedDesigner = designerInfo;
+        designers = fetchedDesigners;
+        isLoading = false;  // Set loading to false once data is fetched
       });
     } catch (e) {
-      print('Error fetching designer info: $e');
+      setState(() {
+        isLoading = false;  // Set loading to false in case of error
+      });
+      print('Error fetching designers: $e');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,65 +90,44 @@ class _DesignersPageState extends State<DesignersPage> {
               ),
             ),
             SizedBox(height: 20.0),
-            selectedDesigner != null
-                ? ListTile(
-              leading: CircleAvatar(
-                backgroundImage: NetworkImage(selectedDesigner!['profileImage']!),
-              ),
-              title: Text(
-                selectedDesigner!['fullName'] ?? 'No Name',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                selectedDesigner!['phone'] ?? 'No Phone',
-                style: TextStyle(decoration: TextDecoration.underline),
-              ),
-              trailing: Icon(Icons.arrow_forward, color: Color(0xFFE47F46)),
-            )
-                : Text(
-              'Loading designer details...',
-              style: TextStyle(color: Colors.red),
-            ),
-            SizedBox(height: 20.0),
+            // Dynamically display designer details in a list
             Expanded(
               child: ListView.builder(
                 itemCount: designers.length,
                 itemBuilder: (context, index) {
-                  final designer = designers[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DesignerDetail(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: 90.0,
-                        child: Card(
-                          shadowColor: Color(0xFF8F9CD6).withOpacity(0.05),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.transparent, width: 2),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundImage: NetworkImage(designer['image']!),
-                            ),
-                            title: Text(
-                              '${designer['name']} (Designer)',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text(
-                              designer['phone']!,
-                              style: TextStyle(decoration: TextDecoration.underline),
-                            ),
-                            trailing: Icon(Icons.arrow_forward, color: Color(0xFFE47F46)),
+                  return GestureDetector(
+                    onTap: () {
+                      // Pass userId and index to CustomerDetailScreen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DesignerDetailScreen (
+                            userId: designers[index]['userId'],  // Pass the userId
+                            index: index,  // Pass the index
                           ),
                         ),
+                      );
+                    },
+                    child: Card(
+                      elevation: 4.0, // Adds shadow and elevation
+                      shadowColor: Colors.black.withOpacity(0.2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          // Use the profileImage from the current designer
+                          backgroundImage: NetworkImage(designers[index]['profileImage'] ?? 'https://via.placeholder.com/150'),
+                        ),
+                        title: Text(
+                          designers[index]['fullName'] ?? 'No Name',  // Use fullName from current designer
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          designers[index]['phone'] ?? 'No Phone',  // Use phone from current designer
+                          style: TextStyle(decoration: TextDecoration.underline),
+                        ),
+                        trailing: Icon(Icons.arrow_forward, color: Color(0xFFE47F46)),
                       ),
                     ),
                   );

@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => ProductPreviewStateful(
-                            productId: product['productId'], // Pass specific product ID if needed
+                            productId: product['productId'], photgrapherId: ['photgrapherId'], // Pass specific product ID if needed
                           ),
                         ),
                       );

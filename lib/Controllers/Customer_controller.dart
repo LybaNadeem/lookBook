@@ -1,14 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DesignerController {
+class CustomerController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-
-
-  // Fetch all users whose role is 'designer'
-  Future<List<Map<String, dynamic>>> getDesignersByRole(String role) async {
+  // Fetch all users whose role is 'customer'
+  Future<List<Map<String, dynamic>>> getCustomersByRole(String role) async {
     try {
-      // Query the 'users' collection for users with the 'role' field set to 'designer'
+      // Query the 'users' collection for users with the 'role' field set to 'customer'
       QuerySnapshot snapshot = await _firestore
           .collection('users')
           .where('role', isEqualTo: role) // Filtering by role
@@ -21,16 +19,13 @@ class DesignerController {
           'fullName': data['fullName'] ?? 'Unknown',
           'phone': data['phone'] ?? 'No phone',
           'profileImage':
-              data['profileImage'] ?? 'https://via.placeholder.com/150',
+          data['profileImage'] ?? 'https://via.placeholder.com/150',
           'userId': doc.id, // Include the user ID
         };
       }).toList();
     } catch (e) {
-      print('Error fetching designers: $e');
+      print('Error fetching customers: $e');
       return [];
     }
   }
 }
-
-
-

@@ -1,11 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../Controllers/edit_controller.dart';
 import 'HomePage.dart';
 
-class Edit extends StatefulWidget {
-  final String productId;
+class Edit extends StatefulWidget  {
+  var productId;
 
   Edit({Key? key, required this.productId}) : super(key: key);
 
@@ -23,52 +24,47 @@ class _EditState extends State<Edit> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController minOrderController = TextEditingController();
-  final TextEditingController photographerNameController = TextEditingController();
-  final TextEditingController photographerEmailController = TextEditingController();
-  final TextEditingController photographerPhoneController = TextEditingController();
-  final TextEditingController photographerSocialLinkController = TextEditingController();
-
-  bool isInitialized = false;
+  final TextEditingController socialLinkController = TextEditingController();
+  final TextEditingController barcodeController = TextEditingController();
+  final TextEditingController eventNameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
-    // Fetch data on initialization
     final editController = Provider.of<edit_controller>(context, listen: false);
     editController.fetchData(widget.productId).then((_) {
-      if (!mounted) return; // Ensure the widget is still mounted
+      if (!mounted) return;
       setState(() {
-        // Populate TextEditingControllers with fetched data
         dressTitleController.text = editController.dressTitle;
         descriptionController.text = editController.description;
         priceController.text = editController.price.toString();
         minOrderController.text = editController.minimumOrderQuantity.toString();
-        photographerNameController.text = editController.photographerName;
-        photographerEmailController.text = editController.photographerEmail;
-        photographerPhoneController.text = editController.photographerPhone;
-        photographerSocialLinkController.text = editController.photographerSocialLink;
-     // Assuming you fetch the date as well
+        socialLinkController.text = editController.photographerSocialLink;
+
       });
     });
-
-
   }
 
   @override
   void dispose() {
-    // Dispose controllers when the widget is disposed
     dressTitleController.dispose();
     descriptionController.dispose();
     priceController.dispose();
     minOrderController.dispose();
-    photographerNameController.dispose();
-    photographerEmailController.dispose();
-    photographerPhoneController.dispose();
-    photographerSocialLinkController.dispose();
+    socialLinkController.dispose();
+    barcodeController.dispose();
+    eventNameController.dispose();
     super.dispose();
   }
-
+  Future<void> deleteProduct(var productId) async {
+    try {
+      await FirebaseFirestore.instance.collection('products').doc(productId).delete();
+       // Notify listeners after deletion if needed
+    } catch (e) {
+      print("Error deleting product: $e");
+      // Handle error appropriately (e.g., show a message to the user)
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final editController = Provider.of<edit_controller>(context);
@@ -87,33 +83,74 @@ class _EditState extends State<Edit> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Image Upload Section
               Center(
                 child: Column(
                   children: [
-                    Container(
-                      height: 150,
-                      width: 150,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.orange),
-                        borderRadius: BorderRadius.circular(10),
+                    SizedBox(
+                      height: 250,
+                      width: double.infinity,
+                      child: Stack(
+                        children: [
+                          Image.asset(
+                            'assets/product_placeholder.png', // Replace with your placeholder
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                          ),
+                          Positioned(
+                            bottom: 10,
+                            right: 10,
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.orange,
+                              ),
+                              onPressed: () {
+                                // Handle image upload
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                      child: Icon(Icons.add_a_photo, size: 50, color: Colors.orange),
                     ),
-                    const SizedBox(height: 8),
-                    const Text("Add Product Images", style: TextStyle(fontSize: 16)),
-                    const Text("Photo Images", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.circle, size: 10, color: Colors.orange),
+                        SizedBox(width: 4),
+                        Icon(Icons.circle, size: 10, color: Colors.grey),
+                        SizedBox(width: 4),
+                        Icon(Icons.circle, size: 10, color: Colors.grey),
+                        SizedBox(width: 4),
+                        Icon(Icons.circle, size: 10, color: Colors.grey),
+                      ],
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 20),
 
-              // Text Fields
+              // Category Field
+              const Text(
+                "Category",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                "Dresses",
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              const Divider(height: 20),
+
+              // Dress Title
               TextFormField(
                 controller: dressTitleController,
                 decoration: const InputDecoration(labelText: "Dress Title"),
               ),
               const SizedBox(height: 10),
 
+              // Price Field
               TextFormField(
                 controller: priceController,
                 decoration: const InputDecoration(labelText: "Price"),
@@ -121,6 +158,7 @@ class _EditState extends State<Edit> {
               ),
               const SizedBox(height: 10),
 
+              // Description Field
               TextFormField(
                 controller: descriptionController,
                 decoration: const InputDecoration(labelText: "Product Description"),
@@ -128,6 +166,7 @@ class _EditState extends State<Edit> {
               ),
               const SizedBox(height: 20),
 
+              // Minimum Order Field
               TextFormField(
                 controller: minOrderController,
                 decoration: const InputDecoration(labelText: "Minimum Order Quantity"),
@@ -135,90 +174,70 @@ class _EditState extends State<Edit> {
               ),
               const SizedBox(height: 10),
 
+              // Social Link Field
               TextFormField(
-                controller: photographerNameController,
-                decoration: const InputDecoration(labelText: "Photographer Name"),
+                controller: socialLinkController,
+                decoration: const InputDecoration(labelText: "Social Links"),
               ),
               const SizedBox(height: 10),
 
+              // Barcode Field
               TextFormField(
-                controller: photographerEmailController,
-                decoration: const InputDecoration(labelText: "Photographer Email"),
+                controller: barcodeController,
+                decoration: const InputDecoration(labelText: "Barcode"),
               ),
               const SizedBox(height: 10),
 
+              // Event Field
               TextFormField(
-                controller: photographerPhoneController,
-                decoration: const InputDecoration(labelText: "Photographer Phone"),
-              ),
-              const SizedBox(height: 10),
-
-              TextFormField(
-                controller: photographerSocialLinkController,
-                decoration: const InputDecoration(labelText: "Photographer Social Link"),
-              ),
-              const SizedBox(height: 10),
-
-              // Date Picker
-              const Text("Event Date"),
-              TextFormField(
-                readOnly: true,
-                decoration: InputDecoration(
-                  hintText: _eventDate == null
-                      ? 'Select Event Date'
-                      : _dateFormat.format(_eventDate!),
-                  suffixIcon: Icon(Icons.calendar_today),
-                ),
-                onTap: () async {
-                  DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: _eventDate ?? DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2101),
-                  );
-                  if (pickedDate != null) {
-                    setState(() {
-                      _eventDate = pickedDate;
-                    });
-                  }
-                },
+                controller: eventNameController,
+                decoration: const InputDecoration(labelText: "Event"),
               ),
               const SizedBox(height: 20),
 
-              // Submit Button
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Submit updated data to the backend
-                      editController.updateProduct(widget.productId, {
-                        'dressTitle': dressTitleController.text,
-                        'description': descriptionController.text,
-                        'price': double.tryParse(priceController.text) ?? 0.0,
-                        'minimumOrderQuantity': int.tryParse(minOrderController.text) ?? 0,
-                        'photographerName': photographerNameController.text,
-                        'photographerEmail': photographerEmailController.text,
-                        'photographerPhone': photographerPhoneController.text,
-                        'photographerSocialLink': photographerSocialLinkController.text,
-                        'eventDate': _eventDate,
-                      }).then((_) {
-                        // Navigate to the homepage after the update is successful
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => HomePage(productId:widget.productId,)),
-                        );
-                      });
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+              // Action Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          // Update product logic
+                          editController.updateProduct(widget.productId, {
+                            'dressTitle': dressTitleController.text,
+                            'description': descriptionController.text,
+                            'price': double.tryParse(priceController.text) ?? 0.0,
+                            'minimumOrderQuantity': int.tryParse(minOrderController.text) ?? 0,
+                            'photographerSocialLink': socialLinkController.text,
+                            'barcode': barcodeController.text,
+                            'eventName': eventNameController.text,
+                          }).then((_) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomePage(productId: widget.productId),
+                              ),
+                            );
+                          });
+                        }
+                      },
+                      child: const Text("UPDATE"),
                     ),
                   ),
-                  child: const Text("Next", style: TextStyle(fontSize: 16)),
-                ),
-
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      onPressed: () {
+                        // Delete product logic
+                        editController.deleteProduct(widget.productId).then((_) {
+                          Navigator.pop(context);
+                        });
+                      },
+                      child: const Text("DELETE PRODUCT"),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
