@@ -61,20 +61,34 @@ class NotificationServices  {
       sound: true,
     );
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        // Handle foreground notifications
-        print('Message received: ${message.notification?.body}');
-        // Show a local notification if needed
-      });
-
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        // Handle when the app is opened from a notification
-        print('Notification clicked!');
-      });
+      // Handle successful permission
+      print('Notification permission granted!');
+    } else {
+      // Handle failed permission
+      print('Notification permission denied!');
     }
-
   }
+  // Future<void> requestNotificationPermission() async {
+  //   NotificationSettings settings = await _messaging.requestPermission(
+  //     alert: true,
+  //     badge: true,
+  //     sound: true,
+  //   );
+  //   if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+  //
+  //     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  //       // Handle foreground notifications
+  //       print('Message received: ${message.notification?.body}');
+  //       // Show a local notification if needed
+  //     });
+  //
+  //     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+  //       // Handle when the app is opened from a notification
+  //       print('Notification clicked!');
+  //     });
+  //   }
+  //
+  // }
 
   void initLocalNotification(
       BuildContext context, RemoteMessage message) async {

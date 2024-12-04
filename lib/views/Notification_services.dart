@@ -257,19 +257,19 @@ class NotificationServices  {
       fetchNotifications(); // Refresh notifications
     });
   }
-  final serviceAccountJson = {
-    "type": "service_account",
-    "project_id": "designer-model",
-    "private_key_id": "1a88bfa4360ce24cf0d6c31dd76b49bc51573b9b",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDChZgmDvRRtn/b\nVUavZJ0wqIOtfuzoDJCYzqMHH3g7JVLW4ZjLdUAkWOOZQQy0J6S8p4vD07FY2EPI\nLMhK0R5YIi39l1iSa6oi0edTYEjLBooPcK2h2+2fi7r2rx0nQF+KpZG3ijct1/oW\n45B7a0MZeO9eMVJNuC4LEz03ABjj1bEfrKw49m8go0DAhJctpderEt8BMHZPYlh/\nTYlXQbhFzUcHfwGwfZHVoXcORXZPsyS4sUWMM5L3mWHRojawClQurzAGbBjkS7MM\nVw/Xi4oM1PgQQ5CifwCJyjmp+lej9p7vHnuP8a3qCeTxGmm78pM07mBbSTEx6AJ6\nDgiGpGKBAgMBAAECggEAMBnEao7Sm/0epzAyWy8sToqxCv8immv2+o5IUnvV6Xw8\nfI3LEG6VNpezaiNjfo36BruAjGNFzLQnqLFoMtX8pKsJB9b7rDNK3jLc+qlJvsiG\nbbR9fxOI8iWljRf2w8y/g2OXQZVAOUoZmbzabqZysHMO79IO6dCENDFk9vuDbBzt\ndws1tD7aB/ARn89sGuiLEKDDsvXGwayGo77D1xPieVZ4U+oeloGv86ZB7r/CrQrp\nSy/GUdYoEmNOq/zd+3Snvp0WtN3a7GRo4NiOvN5KSLfLogqOiEKNzqqovNympk0G\n6gv1oIm/ulNWDvALAApOWErph+YOjFaKBp1m8cA+1QKBgQD7qbrkGyDvVwr0u6Iu\n+syD/kMwnFaS6I7gkeeGn6DSYkgpwPG56/46G9noWoImteGYQPmvgvT+EzQY9mIf\nyFJWjXdJOH0ycDo5BBaM/x11RKFFZKckR9aW+mrD0R4+7N8rDpiurrPVwdQ2zdZb\n/QJKYvfawNu2fkBAvS33jHzzRQKBgQDF38XUtxom49gBNQE+bCxkIPPVx6Yncor4\nwiDg1OF4hwrF35W2Pa3AJUIQk3SOjvPv5kIwCbf/a+s4pvA8n3o81i8V+HolHJeC\nQB5daHUbvo+HBrVilS0MtOEOLAYq18XEgs5KE/KQbSFhD3+X0iqcu0ZNgvXEf5x0\nzv/VNxhoDQKBgDCaYhbFyoGOzPXg+vyZwT/Irk9IEkxDD7z9ULqmP5gCFS/DLKwc\nkLfGQzplqHczb0NJYS9tWkVrjgc4JlE/De/bWGtStpM0K3pxeK14Y8cPHxpYyxLt\nsNrtuArjazT56EvXgNNTuDWTPpnq/Pg9D+Ev5fBgiM5g6aXXI3aIsmUFAoGAFz1F\nzcrHboPZ7aJdCAjKWeQo3xW4pO9l9PtPwzgdVvt9P2oX+jRaQLPfg3Td/pQ5gBZp\n9ZxemMgC8z9f/a65O4XoN8tcBRnLjYecSVooTt7dmn0mNnLQvKpNuE1hWAzJdF/s\nfHTFS0MV5YFdeeY8DPZNtnLIDJD0Ph/FmjQDUM0CgYEAjDSifEbCeXv3N7gRlBTa\nX3QC6ZZhdQ8mOK3v/Fwj2WuAS29s7DMj5KkwrH/DcW06M7/A3fNAMY5aga924QSl\nsGY/Nt21/32IRu/eZTQ7Yo2ZdCjiWjLycXMYxsjFZzEVyNi5Og/IYqYkpyvVmg+r\nwW2wzBtGQEhAK+YgKiILsrU=\n-----END PRIVATE KEY-----\n",
-    "client_email": "notification-lookbook@designer-model.iam.gserviceaccount.com",
-    "client_id": "104473875555006306688",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/notification-lookbook%40designer-model.iam.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
-  };
+  // final serviceAccountJson = {
+  //   "type": "service_account",
+  //   "project_id": "designer-model",
+  //   "private_key_id": "1a88bfa4360ce24cf0d6c31dd76b49bc51573b9b",
+  //   "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDChZgmDvRRtn/b\nVUavZJ0wqIOtfuzoDJCYzqMHH3g7JVLW4ZjLdUAkWOOZQQy0J6S8p4vD07FY2EPI\nLMhK0R5YIi39l1iSa6oi0edTYEjLBooPcK2h2+2fi7r2rx0nQF+KpZG3ijct1/oW\n45B7a0MZeO9eMVJNuC4LEz03ABjj1bEfrKw49m8go0DAhJctpderEt8BMHZPYlh/\nTYlXQbhFzUcHfwGwfZHVoXcORXZPsyS4sUWMM5L3mWHRojawClQurzAGbBjkS7MM\nVw/Xi4oM1PgQQ5CifwCJyjmp+lej9p7vHnuP8a3qCeTxGmm78pM07mBbSTEx6AJ6\nDgiGpGKBAgMBAAECggEAMBnEao7Sm/0epzAyWy8sToqxCv8immv2+o5IUnvV6Xw8\nfI3LEG6VNpezaiNjfo36BruAjGNFzLQnqLFoMtX8pKsJB9b7rDNK3jLc+qlJvsiG\nbbR9fxOI8iWljRf2w8y/g2OXQZVAOUoZmbzabqZysHMO79IO6dCENDFk9vuDbBzt\ndws1tD7aB/ARn89sGuiLEKDDsvXGwayGo77D1xPieVZ4U+oeloGv86ZB7r/CrQrp\nSy/GUdYoEmNOq/zd+3Snvp0WtN3a7GRo4NiOvN5KSLfLogqOiEKNzqqovNympk0G\n6gv1oIm/ulNWDvALAApOWErph+YOjFaKBp1m8cA+1QKBgQD7qbrkGyDvVwr0u6Iu\n+syD/kMwnFaS6I7gkeeGn6DSYkgpwPG56/46G9noWoImteGYQPmvgvT+EzQY9mIf\nyFJWjXdJOH0ycDo5BBaM/x11RKFFZKckR9aW+mrD0R4+7N8rDpiurrPVwdQ2zdZb\n/QJKYvfawNu2fkBAvS33jHzzRQKBgQDF38XUtxom49gBNQE+bCxkIPPVx6Yncor4\nwiDg1OF4hwrF35W2Pa3AJUIQk3SOjvPv5kIwCbf/a+s4pvA8n3o81i8V+HolHJeC\nQB5daHUbvo+HBrVilS0MtOEOLAYq18XEgs5KE/KQbSFhD3+X0iqcu0ZNgvXEf5x0\nzv/VNxhoDQKBgDCaYhbFyoGOzPXg+vyZwT/Irk9IEkxDD7z9ULqmP5gCFS/DLKwc\nkLfGQzplqHczb0NJYS9tWkVrjgc4JlE/De/bWGtStpM0K3pxeK14Y8cPHxpYyxLt\nsNrtuArjazT56EvXgNNTuDWTPpnq/Pg9D+Ev5fBgiM5g6aXXI3aIsmUFAoGAFz1F\nzcrHboPZ7aJdCAjKWeQo3xW4pO9l9PtPwzgdVvt9P2oX+jRaQLPfg3Td/pQ5gBZp\n9ZxemMgC8z9f/a65O4XoN8tcBRnLjYecSVooTt7dmn0mNnLQvKpNuE1hWAzJdF/s\nfHTFS0MV5YFdeeY8DPZNtnLIDJD0Ph/FmjQDUM0CgYEAjDSifEbCeXv3N7gRlBTa\nX3QC6ZZhdQ8mOK3v/Fwj2WuAS29s7DMj5KkwrH/DcW06M7/A3fNAMY5aga924QSl\nsGY/Nt21/32IRu/eZTQ7Yo2ZdCjiWjLycXMYxsjFZzEVyNi5Og/IYqYkpyvVmg+r\nwW2wzBtGQEhAK+YgKiILsrU=\n-----END PRIVATE KEY-----\n",
+  //   "client_email": "notification-lookbook@designer-model.iam.gserviceaccount.com",
+  //   "client_id": "104473875555006306688",
+  //   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  //   "token_uri": "https://oauth2.googleapis.com/token",
+  //   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  //   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/notification-lookbook%40designer-model.iam.gserviceaccount.com",
+  //   "universe_domain": "googleapis.com"
+  // };
   void handleMessage(BuildContext context, RemoteMessage message) {
     if (message.data['type'] == 'msj') {
 
