@@ -1,7 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:untitled/views/customer/preview%20report.dart';
+
 
 import 'Report.dart'; // Ensure this is imported
 
@@ -668,10 +668,7 @@ class _PreviewStatefulState extends State<Preview> {
                                 ElevatedButton(
                                   onPressed: () {
                                     // Add your onPressed logic here
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => PreviewReport()),
-                                    );
+
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Color(0xFFC60D06), // Button background color

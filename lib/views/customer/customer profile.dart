@@ -1,102 +1,70 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import '../MessageApp.dart';
-import 'Barcode_scanner.dart';
-import 'Notification.dart';
-import 'customer_home.dart'; // Firestore import
+import 'package:image_picker/image_picker.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+
+import '../../Controllers/ProfileCustomer_controller.dart'; //
 class ProfileCustomerScreen extends StatefulWidget {
   @override
   _ProfileCustomerScreenState createState() => _ProfileCustomerScreenState();
 }
 
 class _ProfileCustomerScreenState extends State<ProfileCustomerScreen> {
+  final ProfilecustomerController _controller = ProfilecustomerController();
   User? currentUser;
-  int _currentIndex = 0;
-  Map<String, dynamic>? profileData; // Store fetched profile data
-  bool isLoading = true; // Loading state
+  Map<String, dynamic>? profileData;
+
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
+
+  File? _imageFile;
 
   @override
   void initState() {
     super.initState();
-    fetchProfileData();
+    loadUserData();
   }
-  void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
 
-    if (index == 0) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CustomerHomePage(), // Replace with your actual home page widget
-        ),
-      );
-    } else if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MessagesApp(id: ''),
-        ),
-      );
-    } else if (index == 3) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => NotificationScreen()),
-      );
-    } else if (index == 4) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => ProfileCustomerScreen()),
-      );
+  Future<void> loadUserData() async {
+    currentUser = _controller.getCurrentUser();
+    if (currentUser != null) {
+      final data = await _controller.getUserProfile();
+      setState(() {
+        profileData = data;
+        _fullNameController.text = data?['fullName'] ?? '';
+        _emailController.text = currentUser?.email ?? '';
+        _phoneController.text = data?['phone'] ?? '';
+
+      });
+    } else {
+      print("No user is currently logged in.");
     }
   }
 
+  Future<void> updateProfile() async {
+    await _controller.updateUserProfile(
+      fullName: _fullNameController.text,
+      phone: _phoneController.text,
+    );
 
-  /// Fetch current user data and check role
-  Future<void> fetchProfileData() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      // Get the currently logged-in user
-      currentUser = FirebaseAuth.instance.currentUser;
-
-      if (currentUser != null) {
-        // Fetch user document from Firestore
-        final userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser!.uid)
-            .get();
-
-        if (userDoc.exists) {
-          // Check if the role is "customer"
-          final data = userDoc.data();
-          if (data != null && data['role'] == 'Customer') {
-            setState(() {
-              profileData = data; // Assign profile data
-            });
-          } else {
-            // Handle case where the user is not a customer
-            print("User is not a customer");
-          }
-        } else {
-          print("User document does not exist");
-        }
-      } else {
-        print("No user is logged in.");
-      }
-    } catch (e) {
-      print("Error fetching profile data: $e");
+    // Optionally update email and Firebase Auth details
+    if (currentUser?.email != _emailController.text) {
+      await _controller.updateEmail(_emailController.text);
     }
 
-    setState(() {
-      isLoading = false;
-    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Profile updated successfully!')),
+    );
+  }
+
+  // Pick image from gallery
+  Future<void> pickImage() async {
+    await _controller.pickImageForProfile(); // Now use the public method
+    loadUserData(); // Refresh user data after updating the image
   }
 
   @override
@@ -117,57 +85,53 @@ class _ProfileCustomerScreenState extends State<ProfileCustomerScreen> {
           },
         ),
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator()) // Show loading spinner
-          : profileData == null
-          ? Center(child: Text("No profile data found or user is not a customer"))
+      body: currentUser == null
+          ? Center(child: Text("No user logged in"))
           : SingleChildScrollView(
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
             Container(
-              color: Colors.white, // White background
+              color: Colors.white,
               padding: EdgeInsets.only(top: 100, left: 20, right: 20),
               child: Column(
                 children: [
-                  // White container
                   Container(
                     decoration: BoxDecoration(
                       color: Color(0xFFF4C3A7),
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    padding: EdgeInsets.only(
-                        top: 70, left: 20, right: 20), // Add top padding to avoid the avatar
+                    padding: EdgeInsets.only(top: 70, left: 20, right: 20),
                     child: Column(
                       children: [
-                        // Name Field
                         buildTextField(
-                            profileData?['name'] ?? 'No Name', Icons.edit),
+                          controller: _fullNameController,
+                          label: 'Full Name',
+                          icon: Icons.person,
+                        ),
                         SizedBox(height: 10),
-
-                        // Email Field
                         buildTextField(
-                            profileData?['email'] ?? currentUser?.email ?? 'No Email',
-                            Icons.edit),
+                          controller: _emailController,
+                          label: 'Email',
+                          icon: Icons.email,
+                        ),
                         SizedBox(height: 10),
-
-                        // Phone Field (if available)
                         buildTextField(
-                            profileData?['phone'] ?? 'No Phone', Icons.edit),
-                        SizedBox(height: 10),
+                          controller: _phoneController,
+                          label: 'Phone',
+                          icon: Icons.phone,
+                        ),
 
-                        // Password Field (obfuscated)
-                        buildTextField('**************', Icons.edit),
+
+
+
+
                         SizedBox(height: 15),
-
-                        // Update Button
                         ElevatedButton(
-                          onPressed: () {
-                            // Add update functionality if needed
-                          },
+                          onPressed: updateProfile,
                           style: ElevatedButton.styleFrom(
-                            minimumSize: Size(double.infinity, 50), // Full width
-                            backgroundColor: Color(0xFFE47F46), // Orange color
+                            minimumSize: Size(double.infinity, 50),
+                            backgroundColor: Color(0xFFE47F46),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
@@ -184,10 +148,8 @@ class _ProfileCustomerScreenState extends State<ProfileCustomerScreen> {
                 ],
               ),
             ),
-
-            // Title above the CircleAvatar
             Positioned(
-              top: 20, // Adjust the position as needed
+              top: 20,
               child: Center(
                 child: Text(
                   'PROFILE',
@@ -200,27 +162,28 @@ class _ProfileCustomerScreenState extends State<ProfileCustomerScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 50),
-            // Profile Image Positioned
             Positioned(
-              top: 60, // Adjust as needed to control overlap
+              top: 60,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   CircleAvatar(
                     radius: 50,
                     backgroundImage: NetworkImage(
-                        profileData?['photoURL'] ??
-                            currentUser?.photoURL ??
-                            'https://via.placeholder.com/150'), // Placeholder if no photoURL
+                      profileData?['photoURL'] ??
+                          'https://via.placeholder.com/150',
+                    ),
                   ),
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.white,
-                      radius: 15,
-                      child: Icon(Icons.edit, color: Colors.blue, size: 15),
+                    child: GestureDetector(
+                      onTap: pickImage, // Call pickImage when clicked
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 15,
+                        child: Icon(Icons.edit, color: Colors.blue, size: 15),
+                      ),
                     ),
                   ),
                 ],
@@ -228,95 +191,23 @@ class _ProfileCustomerScreenState extends State<ProfileCustomerScreen> {
             ),
           ],
         ),
-
-      ),
-
-
-      bottomNavigationBar: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: _currentIndex,
-            selectedItemColor: Color(0xFFE47F46),
-            unselectedItemColor: Colors.grey,
-            onTap: onTabTapped,
-            items: [
-              BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/icons/Home.svg',
-                  width: MediaQuery.of(context).size.width * 0.075, // 7.5% of screen width
-                  height: MediaQuery.of(context).size.height * 0.025, // 2.5% of screen height
-                ),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/icons/chat.svg',
-                  width: MediaQuery.of(context).size.width * 0.06, // 6% of screen width
-                  height: MediaQuery.of(context).size.height * 0.03, // 3% of screen height
-                ),
-                label: 'Chat',
-              ),
-              BottomNavigationBarItem(
-                icon: SizedBox(width: 0),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/icons/notification-bing.svg',
-                  width: MediaQuery.of(context).size.width * 0.075, // 7.5% of screen width
-                  height: MediaQuery.of(context).size.height * 0.025, // 2.5% of screen height
-                ),
-                label: 'Notification',
-              ),
-              BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/icons/profile.svg',
-                  width: MediaQuery.of(context).size.width * 0.06, // 6% of screen width
-                  height: MediaQuery.of(context).size.height * 0.03, // 3% of screen height
-                ),
-                label: 'Profile',
-              ),
-            ],
-          ),
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.03,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => BarcodeScannerPage()),
-                  ).then((scannedCode) {
-                    if (scannedCode != null) {
-                      print("Scanned Barcode: $scannedCode");
-                      // Handle the scanned code, e.g., display it or perform an action
-                    }
-                  });
-                },
-                child: SvgPicture.asset(
-                  'assets/icons/barcode.svg',
-                  width: MediaQuery.of(context).size.width * 0.2,
-                  height: MediaQuery.of(context).size.width * 0.2,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  Widget buildTextField(String placeholder, IconData icon) {
+  Widget buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+  }) {
     return TextField(
+      controller: controller,
       decoration: InputDecoration(
+
+        floatingLabelBehavior: FloatingLabelBehavior.always, // Ensure the label is always on top
         filled: true,
         fillColor: Colors.white,
         contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        hintText: placeholder,
         suffixIcon: Icon(icon, color: Colors.grey),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
@@ -324,8 +215,5 @@ class _ProfileCustomerScreenState extends State<ProfileCustomerScreen> {
         ),
       ),
     );
-
   }
-
-
 }

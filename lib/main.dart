@@ -7,12 +7,16 @@ import 'package:untitled/providers/onboarding_provider.dart';
 import 'package:untitled/providers/auth_provider.dart';
 import 'package:untitled/views/Add_product1.dart';
 import 'package:untitled/views/Admin/Dashboard.dart';
+import 'package:untitled/views/Notification_services.dart';
 import 'package:untitled/views/ProductPreview.dart';
 import 'package:untitled/views/Signup_screen1.dart';
+import 'package:untitled/views/customer/Preview.dart';
 import 'package:untitled/views/customer/Signup_up%20screen.dart';
 import 'package:untitled/views/customer/customer_home.dart';
+
 import 'package:untitled/views/welcome_screen.dart';
 import 'package:untitled/views/login_screen.dart';
+import 'Controllers/Chat_controller.dart';
 import 'Controllers/Homepage_controller.dart';
 import 'Controllers/edit_controller.dart';
 import 'Controllers/product_previewcontroller.dart';
@@ -32,8 +36,10 @@ void main() async {
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message)async {
   await Firebase.initializeApp();
   print(message.notification!.title.toString());
- 
+
 }
+
+
 
 
 class MyApp extends StatefulWidget {
@@ -48,6 +54,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     checkLoginStatus();
+    NotificationServices notificationService = NotificationServices();
+    notificationService.initLocalNotification(context, RemoteMessage());
   }
 
   void checkLoginStatus() async {
@@ -65,7 +73,7 @@ class _MyAppState extends State<MyApp> {
         } else if (role == 'Customer') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => CustomerHomePage()),
+            MaterialPageRoute(builder: (context) => CustomerHomePage(productId: null,)),
           );
         } else if (role == 'admin') {
           Navigator.pushReplacement(
@@ -86,7 +94,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => ProductPreviewController()),
         ChangeNotifierProvider(create: (_) => edit_controller()),
         ChangeNotifierProvider(create: (_) => HomepageController()),
-        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        Provider<ChatController>(create: (_) => ChatController()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -98,7 +106,8 @@ class _MyAppState extends State<MyApp> {
           '/signup2': (context) => SignupScreen(role: 'designer'),
           '/homepage': (context) => AddProduct1(),
 
-          '/homepage4': (context) => CustomerHomePage(),
+
+
           '/homepage5': (context) => AdminDashboard(),
         },
       ),

@@ -101,6 +101,7 @@ class _AddPhotographerState extends State<AddPhotographer> {
         'phone': phoneController.text,
         'email': emailController.text,
         'userId': currentUser!.uid, // Pass the userId here too
+        'imageUrl': imageUrl, // Save the image URL in photographer data as well
         'timestamp': FieldValue.serverTimestamp(),
       };
 
@@ -109,7 +110,9 @@ class _AddPhotographerState extends State<AddPhotographer> {
       await productDocRef.collection('Photographer').add(photographerData);
 
       // Update the photographer document with its own ID
-      await photographerDocRef.update({'photographerId': photographerDocRef.id});
+      await photographerDocRef.update({
+        'photographerId': photographerDocRef.id, // Store the photographerId inside the document
+      });
 
       print('Photographer added with ID: ${photographerDocRef.id}');
 
@@ -117,7 +120,7 @@ class _AddPhotographerState extends State<AddPhotographer> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ProductPreviewStateful(productId: widget.productId, photgrapherId: null,),
+          builder: (context) => ProductPreviewStateful(productId: widget.productId, photographerId: photographerDocRef.id),
         ),
       );
 
@@ -132,6 +135,7 @@ class _AddPhotographerState extends State<AddPhotographer> {
       );
     }
   }
+
 
 
 
@@ -204,6 +208,186 @@ class _AddPhotographerState extends State<AddPhotographer> {
               _buildTextField('Photographer Name', photographerNameController),
               SizedBox(height: 10),
               _buildTextField('Social Link', socialLinkController),
+              SizedBox(height: height * 0.010),
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 8.0), // Adjust the left padding as needed
+                    child: Text(
+                      'Add Social links',
+                      style:
+                      TextStyle(fontFamily: 'TenorSans', fontSize: 14),
+                      textAlign:
+                      TextAlign.left, // Specify the text alignment
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      // Show the bottom sheet when the SVG icon is tapped
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          final height = MediaQuery.of(context).size.height;
+                          final width = MediaQuery.of(context).size.width;
+
+                          return Container(
+                            height:
+                            350, // Set the desired fixed height for the bottom sheet
+                            width:
+                            double.infinity, // Full width of the screen
+                            padding: EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Center(
+                                  child: SvgPicture.asset(
+                                    'assets/icons/bottom sheet.svg',
+                                    width: 151,
+                                    height: 4,
+                                  ),
+                                ),
+                                SizedBox(height: 64),
+                                Text(
+                                  'Add Social Link',
+                                  style: TextStyle(
+                                    fontFamily: 'TenorSans',
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(
+                                    height:
+                                    10), // Spacing between the title and the text field
+                                TextField(
+                                  // Controller for dress titleController,
+                                  decoration: InputDecoration(
+                                    hintText: 'Title',
+                                    hintStyle: TextStyle(
+                                        fontFamily: 'TenorSans',
+                                        color: Colors.grey[400],
+                                        fontSize: 14),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          30.0), // Set radius for the border
+                                      borderSide: BorderSide(
+                                        color: Colors
+                                            .grey, // Lighter border color
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          30.0), // Same radius when enabled
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.withOpacity(
+                                              0.5)), // Border color when enabled
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          30.0), // Same radius when focused
+                                      borderSide: BorderSide(
+                                          color: Colors
+                                              .grey), // Same color when focused
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                    height:
+                                    10), // Spacing between the title and the text field
+                                TextField(
+                                  decoration: InputDecoration(
+                                    hintText: 'Link',
+                                    hintStyle: TextStyle(
+                                        fontFamily: 'TenorSans',
+                                        color: Colors.grey[400],
+                                        fontSize: 14),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          30.0), // Set radius for the border
+                                      borderSide: BorderSide(
+                                        color: Colors
+                                            .grey, // Lighter border color
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          30.0), // Same radius when enabled
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.withOpacity(
+                                              0.5)), // Border color when enabled
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          30.0), // Same radius when focused
+                                      borderSide: BorderSide(
+                                          color: Colors
+                                              .grey), // Same color when focused
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                    height: 20), // Space before the button
+                                Center(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      // Add your action here when the button is pressed
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                      Color(0xFFE47F46), // Button color
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 12,
+                                          horizontal:
+                                          16), // Add padding for height and width
+                                      minimumSize: Size(399,
+                                          59), // Set the fixed width and height
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .spaceBetween, // Space between text and icon
+                                      children: [
+                                        Expanded(
+                                          // Use Expanded to take up available space
+                                          child: Text(
+                                            'ADD',
+                                            textAlign: TextAlign
+                                                .left, // Align text to the left
+                                            style: TextStyle(
+                                              fontFamily:
+                                              'Outfit_Variable_wght',
+                                              color: Colors
+                                                  .white, // Text color
+                                              fontSize: 16, // Font size
+                                            ),
+                                          ),
+                                        ),
+                                        SvgPicture.asset(
+                                          'assets/icons/white Vector.svg', // Update with your SVG path
+                                          height:
+                                          24, // Adjust height as needed
+                                          width:
+                                          24, // Adjust width as needed
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+// Add other widgets here, buttons, etc.
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: SvgPicture.asset(
+                      'assets/icons/Vector.svg', // Update with your SVG path
+                      width: width * 0.015, // Adjust width for icon
+                      height: height * 0.015, // Adjust height for icon
+                    ),
+                  ),
+                ],
+              ),
               SizedBox(height: 10),
               _buildTextField('Phone Number', phoneController),
               SizedBox(height: 10),

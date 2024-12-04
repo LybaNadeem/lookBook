@@ -1,11 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class BlockPage extends StatelessWidget {
-  final List<Map<String, String>> designers = [
-    {'name': 'Robert Fox', 'phone': '+49 40 60774609', 'image': 'assets/images/antwon.jpg'},
-    // Add more designers if needed
-  ];
+class BlockUserController {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<List<Map<String, dynamic>>> fetchBlockedUsers() async {
+    try {
+      QuerySnapshot blockedUsersSnapshot = await _firestore
+          .collection('users')
+          .where('block', isEqualTo: true)
+          .get();
+
+      return blockedUsersSnapshot.docs.map((doc) {
+        return {
+          'id': doc.id,
+          ...doc.data() as Map<String, dynamic>,
+        };
+      }).toList();
+    } catch (e) {
+      print("Error fetching blocked users: $e");
+      return [];
+    }
+  }
+}
+
+class BlockPage extends StatefulWidget {
+  @override
+  _BlockPageState createState() => _BlockPageState();
+}
+
+class _BlockPageState extends State<BlockPage> {
+  final BlockUserController _controller = BlockUserController();
+  late Future<List<Map<String, dynamic>>> _blockedUsersFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _blockedUsersFuture = _controller.fetchBlockedUsers();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +78,8 @@ class BlockPage extends StatelessWidget {
                   letterSpacing: 1.5,
                 ),
               ),
-             // Space between the title and SVG
               SvgPicture.asset('assets/icons/3.svg', height: 12, width: 12),
               SizedBox(height: 20.0), // Space between the SVG and the TabBar
-              // TabBar
               Container(
                 color: Colors.grey[100],
                 padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2),
@@ -77,51 +108,68 @@ class BlockPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20.0), // Space between the TabBar and content
-              // Expanded content
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0), // Additional padding for the TabBarView content
                   child: TabBarView(
                     children: [
-                      // Designer Tab with card layout
-                      ListView.builder(
-                        itemCount: designers.length,
-                        itemBuilder: (context, index) {
-                          final designer = designers[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Color(0xFFFFE5E5), // Light red background
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: AssetImage(designer['image']!),
-                                  radius: 30,
-                                ),
-                                title: Text(
-                                  designer['name']!,
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                subtitle: Text(designer['phone']!),
-                                trailing: ElevatedButton(
-                                  onPressed: () {
-                                    // Handle unblock action
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
+                      // Designer Tab with fetched blocked users
+                      FutureBuilder<List<Map<String, dynamic>>>(
+                        future: _blockedUsersFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Center(child: Text('Error fetching blocked users'));
+                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return Center(child: Text('No blocked users found'));
+                          }
+
+                          final blockedUsers = snapshot.data!;
+                          return ListView.builder(
+                            itemCount: blockedUsers.length,
+                            itemBuilder: (context, index) {
+                              final user = blockedUsers[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFFFE5E5), // Light red background
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundImage: user['image'] != null
+                                          ? NetworkImage(user['image']) // Assuming image URL is in the 'image' field
+                                          : AssetImage('assets/images/default_avatar.png')
+                                      as ImageProvider,
+                                      radius: 30,
+                                    ),
+                                    title: Text(
+                                      user['fullName'] ?? 'Unknown',
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    subtitle: Text(user['phone'] ?? 'No phone number'),
+                                    trailing: ElevatedButton(
+                                      onPressed: () {
+                                        // Handle unblock action
+                                        print('Unblock user: ${user['id']}');
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'UNBLOCK',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
                                     ),
                                   ),
-                                  child: Text(
-                                    'UNBLOCK',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
                                 ),
-                              ),
-                            ),
+                              );
+                            },
                           );
                         },
                       ),

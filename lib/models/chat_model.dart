@@ -1,21 +1,29 @@
 class ChatRoomModel {
-  String? chatroomid;
-  Map<String, dynamic>? participants;
+  String chatroomId;
+  Map<String, dynamic>? participants;  // Map with dynamic values
   String? lastMessage;
 
-  ChatRoomModel({this.chatroomid, this.participants, this.lastMessage});
+  ChatRoomModel({
+    required this.chatroomId,
+    this.participants,
+    this.lastMessage,
+  });
 
-  ChatRoomModel.fromMap(Map<String, dynamic> map) {
-    chatroomid = map["chatroomid"];
-    participants = map["participants"];
-    lastMessage = map["lastmessage"];
-  }
-
+  // Convert ChatRoomModel to Map
   Map<String, dynamic> toMap() {
     return {
-      "chatroomid": chatroomid,
+      "chatroomId": chatroomId,
       "participants": participants,
-      "lastmessage": lastMessage
+      "lastmessage": lastMessage,
     };
+  }
+
+  // Create ChatRoomModel from Map
+  factory ChatRoomModel.fromMap(Map<String, dynamic> map) {
+    return ChatRoomModel(
+      chatroomId: map["chatroomId"] ?? '',
+      participants: map["participants"] ?? {},
+      lastMessage: map["lastmessage"] ?? '',
+    );
   }
 }

@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../DesignerMessage_screen.dart';
 
-import '../ChatDetailScreen.dart';
-import '../MessageApp.dart';
-import 'Customer_chatdetail.dart';
 
 
 class CustomerMesageapp extends StatelessWidget {
@@ -16,7 +14,7 @@ class CustomerMesageapp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MessagesScreen(),
+      home: MessagesPage(currentUserId: '',),
     );
   }
 }
@@ -54,9 +52,9 @@ class CustomerMessagesScreen extends StatelessWidget {
               ),
             ),
             SvgPicture.asset(
-                'assets/icons/3.svg', // Path to your SVG asset
-                height:10, // Adjust the height relative to screen height
-                width:7  // Minimize the width further if needed// Ensures the SVG fits the container size
+                'assets/icons/3.svg',
+                height:10,
+                width:7
             ),
             SizedBox(height: 10),
             // Search Bar
@@ -75,7 +73,6 @@ class CustomerMessagesScreen extends StatelessWidget {
                 ),
               ),
             ),
-            // Messages List
             Expanded(
               child: ListView(
                 children: [
@@ -105,26 +102,18 @@ class CustomerMessagesScreen extends StatelessWidget {
   Widget messageTile(BuildContext context, String name, String message, String imageUrl, int unreadCount) {
     return ListTile(
       onTap: () async {
-        String chatRoomId = getChatRoomId("currentUserId", name); // Create unique chatroom ID
+        String chatRoomId = getChatRoomId("currentUserId", name);
 
         // Create or fetch the chatroom in Firestore
         await FirebaseFirestore.instance.collection('chatrooms').doc(chatRoomId).set({
           'chatroomId': chatRoomId,
-          'users': ["currentUserId", name], // Replace with actual IDs
+          'users': ["currentUserId", name],
           'lastMessage': '',
           'timestamp': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true)); // Merge ensures it won't overwrite if already exists
+        }, SetOptions(merge: true));
 
-        // Navigate to ChatDetailScreen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CustomerChatDetail(
-              name: name,
-              chatRoomId: chatRoomId,
-            ),
-          ),
-        );
+
+
       },
       leading: CircleAvatar(
         backgroundImage: AssetImage(imageUrl),

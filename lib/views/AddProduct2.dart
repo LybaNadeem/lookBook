@@ -10,8 +10,7 @@ import '../components/Size selector.dart';
 import '../components/color_picker.dart';
 import 'AddPhotographer .dart';
 
-class AddProduct2 extends StatefulWidget
-{
+class AddProduct2 extends StatefulWidget {
   var productId;
 
   AddProduct2({Key? key, required this.productId}) : super(key: key);
@@ -19,9 +18,7 @@ class AddProduct2 extends StatefulWidget
   _AddProduct2State createState() => _AddProduct2State();
 }
 
-
-class _AddProduct2State extends State<AddProduct2>
-{
+class _AddProduct2State extends State<AddProduct2> {
   final _formKey = GlobalKey<FormState>();
   DateTime? _eventDate;
   final _dateFormat = DateFormat('yyyy-MM-dd');
@@ -57,12 +54,14 @@ class _AddProduct2State extends State<AddProduct2>
     if (newCategory.isNotEmpty && !categories.contains(newCategory)) {
       setState(() {
         categories.add(newCategory);
-        categoryController.text = newCategory; // Automatically select the new category
+        categoryController.text =
+            newCategory; // Automatically select the new category
       });
       addCategoryController.clear(); // Clear the text field after adding
       Navigator.pop(context); // Close the bottom sheet
     }
   }
+
   // Function to pick an image
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -82,7 +81,7 @@ class _AddProduct2State extends State<AddProduct2>
 
     try {
       Reference firebaseStorageRef =
-      FirebaseStorage.instance.ref().child('Products/$fileName');
+          FirebaseStorage.instance.ref().child('Products/$fileName');
       UploadTask uploadTask = firebaseStorageRef.putFile(file);
       TaskSnapshot taskSnapshot = await uploadTask;
       String downloadURL = await taskSnapshot.ref.getDownloadURL();
@@ -127,7 +126,6 @@ class _AddProduct2State extends State<AddProduct2>
         instagramController.text.isEmpty ||
         linkedinController.text.isEmpty ||
         BarcodeController.text.isEmpty ||
-
         EventController.text.isEmpty ||
         colorsController.text.isEmpty ||
         sizesController.text.isEmpty) {
@@ -138,7 +136,8 @@ class _AddProduct2State extends State<AddProduct2>
     }
 
     // Reference a new document in the 'products' collection
-    DocumentReference productRef = FirebaseFirestore.instance.collection('products').doc();
+    DocumentReference productRef =
+        FirebaseFirestore.instance.collection('products').doc();
 
     // Prepare the data for Firestore
     final productData = {
@@ -153,6 +152,7 @@ class _AddProduct2State extends State<AddProduct2>
       'Event': EventController.text,
       'Colors': [colorsController.text], // Store colors in a list
       'Sizes': [sizesController.text], // Store sizes in a list
+      'report': false, // Add the report field with default value false
       'userId': currentUser!.uid,
       'timestamp': FieldValue.serverTimestamp(), // Optional: Track when added
     };
@@ -170,7 +170,10 @@ class _AddProduct2State extends State<AddProduct2>
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => AddPhotographer(productId: productRef.id,)),
+        MaterialPageRoute(
+            builder: (context) => AddPhotographer(
+                  productId: productRef.id,
+                )),
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Product added successfully!')),
@@ -182,10 +185,6 @@ class _AddProduct2State extends State<AddProduct2>
     }
   }
 
-
-
-
-
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -195,10 +194,10 @@ class _AddProduct2State extends State<AddProduct2>
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
-        title:
-        Text("LOOK\n      BOOK",
+        title: Text("LOOK\n      BOOK",
             style: TextStyle(
-                fontFamily: 'Agne', fontWeight: FontWeight.bold)), // AppBar title for AddProduct2
+                fontFamily: 'Agne',
+                fontWeight: FontWeight.bold)), // AppBar title for AddProduct2
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0), // Add padding for aesthetics
@@ -206,11 +205,9 @@ class _AddProduct2State extends State<AddProduct2>
           child: Column(
             children: [
               Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
                   // Title below AppBar
                   Container(
                     // Positioning from the bottom
@@ -222,7 +219,7 @@ class _AddProduct2State extends State<AddProduct2>
                   SvgPicture.asset(
                     'assets/icons/3.svg', // Update with your SVG path
                     height: height * 0.02, // Adjust the height as needed
-                    width:width * 0.02, // Adjust the width as needed
+                    width: width * 0.02, // Adjust the width as needed
                   ),
                   SizedBox(height: 20), // Space between title and image
 
@@ -231,36 +228,42 @@ class _AddProduct2State extends State<AddProduct2>
                     onTap: _pickImage, // Pick image when tapped
                     child: _imageFile == null
                         ? Column(
-                      children: [
-                        SvgPicture.asset(
-                          'assets/icons/add product images.svg', // Update with your SVG path
-                          width: width * 0.272,
-                          height: height * 0.240,
-                        ),
-                        Text('Tap to upload image',style:TextStyle(fontFamily: 'TenorSans'),),
-                      ],
-                    )
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/add product images.svg', // Update with your SVG path
+                                width: width * 0.272,
+                                height: height * 0.240,
+                              ),
+                              Text(
+                                'Tap to upload image',
+                                style: TextStyle(fontFamily: 'TenorSans'),
+                              ),
+                            ],
+                          )
                         : Column(
-                      children: [
-                        Image.file(
-                          _imageFile!,
-                          width: width * 0.0272,
-                          height: height * 0.0240,
-                        ),
-                        SizedBox(height:height * 0.020),
-                        Text('Image uploaded!', style: TextStyle(fontFamily: 'TenorSans'),),
-                      ],
-                    ),
+                            children: [
+                              Image.file(
+                                _imageFile!,
+                                width: width * 0.0272,
+                                height: height * 0.0240,
+                              ),
+                              SizedBox(height: height * 0.020),
+                              Text(
+                                'Image uploaded!',
+                                style: TextStyle(fontFamily: 'TenorSans'),
+                              ),
+                            ],
+                          ),
                   ),
                   // Show the uploaded image from Firebase
                   if (_imageUrl != null)
                     Column(
                       children: [
-                        SizedBox(height:height * 0.020),
+                        SizedBox(height: height * 0.020),
                         Image.network(
                           _imageUrl!,
-                          width:width * 0.0272,
-                          height:height * 0.0240,
+                          width: width * 0.0272,
+                          height: height * 0.0240,
                           fit: BoxFit.cover,
                         ),
                         SizedBox(height: 20),
@@ -289,9 +292,11 @@ class _AddProduct2State extends State<AddProduct2>
                       readOnly: true, // Makes the TextField non-editable
                       decoration: InputDecoration(
                         hintText: 'Select Category', // Placeholder text
-                        hintStyle: TextStyle(fontFamily: 'TenorSans'), // Custom font
+                        hintStyle:
+                            TextStyle(fontFamily: 'TenorSans'), // Custom font
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30), // Rounded corners
+                          borderRadius:
+                              BorderRadius.circular(30), // Rounded corners
                         ),
                         contentPadding: EdgeInsets.symmetric(
                           vertical: 10,
@@ -307,7 +312,8 @@ class _AddProduct2State extends State<AddProduct2>
                       margin: const EdgeInsets.only(top: 4),
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10), // Rounded corners
+                        borderRadius:
+                            BorderRadius.circular(10), // Rounded corners
                         color: Colors.white, // Background color
                         boxShadow: [
                           BoxShadow(
@@ -332,7 +338,8 @@ class _AddProduct2State extends State<AddProduct2>
                             ),
                             onTap: () {
                               setState(() {
-                                categoryController.text = categories[index]; // Update TextField value
+                                categoryController.text =
+                                    categories[index]; // Update TextField value
                                 showDropdown = false; // Close the dropdown
                               });
                             },
@@ -347,14 +354,19 @@ class _AddProduct2State extends State<AddProduct2>
                   Row(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0), // Adjust the left padding as needed
+                        padding: const EdgeInsets.only(
+                            left: 8.0), // Adjust the left padding as needed
                         child: Text(
                           'Add Category',
-                          style: TextStyle(fontSize: 14, fontFamily: 'TenorSans'),
-                          textAlign: TextAlign.left, // Specify the text alignment
+                          style:
+                              TextStyle(fontSize: 14, fontFamily: 'TenorSans'),
+                          textAlign:
+                              TextAlign.left, // Specify the text alignment
                         ),
                       ),
-                      SizedBox(width: width * 0.008), // Add space between text and icon
+                      SizedBox(
+                          width:
+                              width * 0.008), // Add space between text and icon
                       GestureDetector(
                         onTap: () {
                           // Show the bottom sheet when the SVG icon is tapped
@@ -362,8 +374,10 @@ class _AddProduct2State extends State<AddProduct2>
                             context: context,
                             builder: (BuildContext context) {
                               return Container(
-                                height: 300, // Set the desired fixed height for the bottom sheet
-                                width: double.infinity, // Full width of the screen
+                                height:
+                                    300, // Set the desired fixed height for the bottom sheet
+                                width:
+                                    double.infinity, // Full width of the screen
                                 padding: EdgeInsets.all(16.0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,48 +398,68 @@ class _AddProduct2State extends State<AddProduct2>
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    SizedBox(height: 10), // Spacing between the title and the text field
+                                    SizedBox(
+                                        height:
+                                            10), // Spacing between the title and the text field
                                     TextField(
                                       controller: addCategoryController,
                                       decoration: InputDecoration(
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(30),
-                                          borderSide: BorderSide(color: Colors.grey.shade700), // Light gray border
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey
+                                                  .shade700), // Light gray border
                                         ),
-                                        hintText: 'Type category', // Placeholder text for the text field
+                                        hintText:
+                                            'Type category', // Placeholder text for the text field
                                         hintStyle: TextStyle(
                                           fontFamily: 'TenorSans',
-                                          color: Colors.grey.shade400, // Light gray hint text
+                                          color: Colors.grey
+                                              .shade400, // Light gray hint text
                                         ),
                                       ),
                                     ),
                                     SizedBox(height: 30),
                                     Center(
                                       child: ElevatedButton(
-                                        onPressed: addCategory, // Call addCategory method
+                                        onPressed:
+                                            addCategory, // Call addCategory method
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Color(0xFFE47F46), // Button color
-                                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16), // Add padding for height and width
-                                          minimumSize: Size(399, 59), // Set the fixed width and height
+                                          backgroundColor:
+                                              Color(0xFFE47F46), // Button color
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 12,
+                                              horizontal:
+                                                  16), // Add padding for height and width
+                                          minimumSize: Size(399,
+                                              59), // Set the fixed width and height
                                         ),
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space between text and icon
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .spaceBetween, // Space between text and icon
                                           children: [
-                                            Expanded( // Use Expanded to take up available space
+                                            Expanded(
+                                              // Use Expanded to take up available space
                                               child: Text(
                                                 'ADD',
-                                                textAlign: TextAlign.left, // Align text to the left
+                                                textAlign: TextAlign
+                                                    .left, // Align text to the left
                                                 style: TextStyle(
-                                                  fontFamily: 'Outfit_VariableFont_wght',
-                                                  color: Colors.white, // Text color
+                                                  fontFamily:
+                                                      'Outfit_VariableFont_wght',
+                                                  color: Colors
+                                                      .white, // Text color
                                                   fontSize: 16, // Font size
                                                 ),
                                               ),
                                             ),
                                             SvgPicture.asset(
                                               'assets/icons/Vector.svg', // Update with your SVG path
-                                              width: width * 0.015, // Adjust width for icon
-                                              height: height * 0.015, // Adjust height for icon
+                                              width: width *
+                                                  0.015, // Adjust width for icon
+                                              height: height *
+                                                  0.015, // Adjust height for icon
                                             ),
                                           ],
                                         ),
@@ -444,198 +478,244 @@ class _AddProduct2State extends State<AddProduct2>
                         ),
                       ),
                     ],
-              ),
+                  ),
 
-                  SizedBox(height:height * 0.010), // Space after the dropdown
+                  SizedBox(height: height * 0.010), // Space after the dropdown
                   Text(
                     'Dress title',
-                    style: TextStyle(fontSize: 20,fontFamily: 'TenorSans'),
+                    style: TextStyle(fontSize: 20, fontFamily: 'TenorSans'),
                   ),
-                  SizedBox(height:height * 0.01),
+                  SizedBox(height: height * 0.01),
                   TextField(
-                    controller: dressTitleController, // Controller for dress titleController,
+                    controller:
+                        dressTitleController, // Controller for dress titleController,
                     decoration: InputDecoration(
                       hintText: ' Type',
-                      hintStyle: TextStyle(fontFamily: 'TenorSans', color: Colors.grey[400], fontSize: 14),
+                      hintStyle: TextStyle(
+                          fontFamily: 'TenorSans',
+                          color: Colors.grey[400],
+                          fontSize: 14),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Set radius for the border
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Set radius for the border
                         borderSide: BorderSide(
                           color: Colors.grey, // Lighter border color
                         ),
                       ),
-
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when enabled
-                        borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)), // Border color when enabled
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when enabled
+                        borderSide: BorderSide(
+                            color: Colors.grey
+                                .withOpacity(0.5)), // Border color when enabled
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when focused
-                        borderSide: BorderSide(color: Colors.grey), // Same color when focused
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when focused
+                        borderSide: BorderSide(
+                            color: Colors.grey), // Same color when focused
                       ),
                     ),
                   ),
-                  SizedBox(height:height * 0.030), // Space after the dropdown
+                  SizedBox(height: height * 0.030), // Space after the dropdown
                   Text(
                     'Price',
-                    style: TextStyle(fontSize: 20,fontFamily: 'TenorSans'),
+                    style: TextStyle(fontSize: 20, fontFamily: 'TenorSans'),
                   ),
-                  SizedBox(height:height * 0.010),
+                  SizedBox(height: height * 0.010),
                   TextField(
-                    controller: priceController, // Controller for dress titleController,
+                    controller:
+                        priceController, // Controller for dress titleController,
                     decoration: InputDecoration(
                       hintText: ' Type',
-                      hintStyle: TextStyle(fontFamily: 'TenorSans', color: Colors.grey[400], fontSize: 14),
+                      hintStyle: TextStyle(
+                          fontFamily: 'TenorSans',
+                          color: Colors.grey[400],
+                          fontSize: 14),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Set radius for the border
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Set radius for the border
                         borderSide: BorderSide(
                           color: Colors.grey, // Lighter border color
                         ),
                       ),
-
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when enabled
-                        borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)), // Border color when enabled
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when enabled
+                        borderSide: BorderSide(
+                            color: Colors.grey
+                                .withOpacity(0.5)), // Border color when enabled
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when focused
-                        borderSide: BorderSide(color: Colors.grey), // Same color when focused
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when focused
+                        borderSide: BorderSide(
+                            color: Colors.grey), // Same color when focused
                       ),
                     ),
                   ),
-                  SizedBox(height:height * 0.030),
-
+                  SizedBox(height: height * 0.030),
 
                   Text(
                     'Project Description',
-                    style: TextStyle(fontFamily: 'TenorSans',fontSize: 20),
+                    style: TextStyle(fontFamily: 'TenorSans', fontSize: 20),
                   ),
-                  SizedBox(height:height * 0.010),
+                  SizedBox(height: height * 0.010),
                   TextField(
-                    controller:
-                    projectDescriptionController,
+                    controller: projectDescriptionController,
                     maxLines: 3,
                     decoration: InputDecoration(
                       hintText: ' Type',
-                      hintStyle: TextStyle(fontFamily: 'TenorSans', color: Colors.grey[400], fontSize: 14),
+                      hintStyle: TextStyle(
+                          fontFamily: 'TenorSans',
+                          color: Colors.grey[400],
+                          fontSize: 14),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                        borderRadius: BorderRadius.circular(10.0),
                         borderSide: BorderSide(
                           color: Colors.grey, // Lighter border color
                         ),
                       ),
-
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)),
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide:
+                            BorderSide(color: Colors.grey.withOpacity(0.5)),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                        borderRadius: BorderRadius.circular(10.0),
                         borderSide: BorderSide(color: Colors.grey),
                       ),
                     ),
                   ),
-                  SizedBox(height:height * 0.030),
+                  SizedBox(height: height * 0.030),
                   ColorPickerWidget(controller: colorsController),
-                  SizedBox(height:height * 0.030),
+                  SizedBox(height: height * 0.030),
 
                   Text(
                     'Sizes',
-                    style: TextStyle(fontFamily: 'TenorSans',fontSize: 20),
+                    style: TextStyle(fontFamily: 'TenorSans', fontSize: 20),
                   ),
-                  SizedBox(height:height * 0.010),
+                  SizedBox(height: height * 0.010),
                   SizeSelector(controller: sizesController),
 
-                  SizedBox(height:height* 0.010 ), // Minimum Order TextField
+                  SizedBox(height: height * 0.010), // Minimum Order TextField
                   Text(
                     'Minimum Order Quantity',
-                    style: TextStyle(fontFamily: 'TenorSans',fontSize: 20),
+                    style: TextStyle(fontFamily: 'TenorSans', fontSize: 20),
                   ),
-                  SizedBox(height:height * 0.010),
+                  SizedBox(height: height * 0.010),
                   TextField(
-                    controller: minimumorderController, // Controller for dress titleController,
+                    controller:
+                        minimumorderController, // Controller for dress titleController,
                     decoration: InputDecoration(
                       hintText: 'Enter Minimum Order Quantity',
-                      hintStyle: TextStyle(fontFamily: 'TenorSans', color: Colors.grey[400], fontSize: 14),
+                      hintStyle: TextStyle(
+                          fontFamily: 'TenorSans',
+                          color: Colors.grey[400],
+                          fontSize: 14),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Set radius for the border
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Set radius for the border
                         borderSide: BorderSide(
                           color: Colors.grey, // Lighter border color
                         ),
                       ),
-
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when enabled
-                        borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)), // Border color when enabled
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when enabled
+                        borderSide: BorderSide(
+                            color: Colors.grey
+                                .withOpacity(0.5)), // Border color when enabled
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when focused
-                        borderSide: BorderSide(color: Colors.grey), // Same color when focused
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when focused
+                        borderSide: BorderSide(
+                            color: Colors.grey), // Same color when focused
                       ),
                     ),
                   ),
-                  SizedBox(height:height * 0.030), // Space after the dropdown
+                  SizedBox(height: height * 0.030), // Space after the dropdown
                   Text(
                     'Social Links',
-                    style: TextStyle(fontFamily: 'TenorSans',fontSize: 20),
+                    style: TextStyle(fontFamily: 'TenorSans', fontSize: 20),
                   ), //
                   // Space after minimum order
-                  SizedBox(height:height * 0.020),
+                  SizedBox(height: height * 0.020),
                   Text(
                     'Instagram',
-                    style: TextStyle(fontFamily: 'TenorSans',fontSize: 20),
+                    style: TextStyle(fontFamily: 'TenorSans', fontSize: 20),
                   ),
-                  SizedBox(height:height * 0.010),
+                  SizedBox(height: height * 0.010),
                   TextField(
-                    controller: instagramController, // Controller for dress titleController,
+                    controller:
+                        instagramController, // Controller for dress titleController,
                     decoration: InputDecoration(
                       hintText: 'Link',
-                      hintStyle: TextStyle(fontFamily: 'TenorSans', color: Colors.grey[400], fontSize: 14),
+                      hintStyle: TextStyle(
+                          fontFamily: 'TenorSans',
+                          color: Colors.grey[400],
+                          fontSize: 14),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Set radius for the border
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Set radius for the border
                         borderSide: BorderSide(
                           color: Colors.grey, // Lighter border color
                         ),
                       ),
-
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when enabled
-                        borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)), // Border color when enabled
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when enabled
+                        borderSide: BorderSide(
+                            color: Colors.grey
+                                .withOpacity(0.5)), // Border color when enabled
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when focused
-                        borderSide: BorderSide(color: Colors.grey), // Same color when focused
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when focused
+                        borderSide: BorderSide(
+                            color: Colors.grey), // Same color when focused
                       ),
                     ),
                   ),
-                  SizedBox(height:height * 0.010),
+                  SizedBox(height: height * 0.010),
                   Text(
                     'Linkedin',
-                    style: TextStyle(fontFamily: 'TenorSans',fontSize: 20),
+                    style: TextStyle(fontFamily: 'TenorSans', fontSize: 20),
                   ),
-                  SizedBox(height:height * 0.010),
+                  SizedBox(height: height * 0.010),
                   TextField(
-                    controller: linkedinController, // Controller for dress titleController,
+                    controller:
+                        linkedinController, // Controller for dress titleController,
                     decoration: InputDecoration(
                       hintText: 'Link',
-                      hintStyle: TextStyle(fontFamily: 'TenorSans', color: Colors.grey[400], fontSize: 14),
+                      hintStyle: TextStyle(
+                          fontFamily: 'TenorSans',
+                          color: Colors.grey[400],
+                          fontSize: 14),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Set radius for the border
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Set radius for the border
                         borderSide: BorderSide(
                           color: Colors.grey, // Lighter border color
                         ),
                       ),
-
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when enabled
-                        borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)), // Border color when enabled
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when enabled
+                        borderSide: BorderSide(
+                            color: Colors.grey
+                                .withOpacity(0.5)), // Border color when enabled
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when focused
-                        borderSide: BorderSide(color: Colors.grey), // Same color when focused
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when focused
+                        borderSide: BorderSide(
+                            color: Colors.grey), // Same color when focused
                       ),
                     ),
                   ),
-                  SizedBox(height:height * 0.010),
+                  SizedBox(height: height * 0.010),
                   Row(
                     children: [
                       Padding(
@@ -643,8 +723,10 @@ class _AddProduct2State extends State<AddProduct2>
                             left: 8.0), // Adjust the left padding as needed
                         child: Text(
                           'Add Social links',
-                          style: TextStyle(fontFamily: 'TenorSans',fontSize: 14),
-                          textAlign: TextAlign.left, // Specify the text alignment
+                          style:
+                              TextStyle(fontFamily: 'TenorSans', fontSize: 14),
+                          textAlign:
+                              TextAlign.left, // Specify the text alignment
                         ),
                       ),
                       GestureDetector(
@@ -657,8 +739,10 @@ class _AddProduct2State extends State<AddProduct2>
                               final width = MediaQuery.of(context).size.width;
 
                               return Container(
-                                height: 350, // Set the desired fixed height for the bottom sheet
-                                width: double.infinity, // Full width of the screen
+                                height:
+                                    350, // Set the desired fixed height for the bottom sheet
+                                width:
+                                    double.infinity, // Full width of the screen
                                 padding: EdgeInsets.all(16.0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -679,85 +763,122 @@ class _AddProduct2State extends State<AddProduct2>
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    SizedBox(height: 10), // Spacing between the title and the text field
-                                    TextField(// Controller for dress titleController,
+                                    SizedBox(
+                                        height:
+                                            10), // Spacing between the title and the text field
+                                    TextField(
+                                      // Controller for dress titleController,
                                       decoration: InputDecoration(
                                         hintText: 'Title',
-                                        hintStyle: TextStyle(fontFamily: 'TenorSans', color: Colors.grey[400], fontSize: 14),
+                                        hintStyle: TextStyle(
+                                            fontFamily: 'TenorSans',
+                                            color: Colors.grey[400],
+                                            fontSize: 14),
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(30.0), // Set radius for the border
+                                          borderRadius: BorderRadius.circular(
+                                              30.0), // Set radius for the border
                                           borderSide: BorderSide(
-                                            color: Colors.grey, // Lighter border color
+                                            color: Colors
+                                                .grey, // Lighter border color
                                           ),
                                         ),
-
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(30.0), // Same radius when enabled
-                                          borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)), // Border color when enabled
+                                          borderRadius: BorderRadius.circular(
+                                              30.0), // Same radius when enabled
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.withOpacity(
+                                                  0.5)), // Border color when enabled
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(30.0), // Same radius when focused
-                                          borderSide: BorderSide(color: Colors.grey), // Same color when focused
+                                          borderRadius: BorderRadius.circular(
+                                              30.0), // Same radius when focused
+                                          borderSide: BorderSide(
+                                              color: Colors
+                                                  .grey), // Same color when focused
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height: 10), // Spacing between the title and the text field
+                                    SizedBox(
+                                        height:
+                                            10), // Spacing between the title and the text field
                                     TextField(
                                       decoration: InputDecoration(
                                         hintText: 'Link',
-                                        hintStyle: TextStyle(fontFamily: 'TenorSans', color: Colors.grey[400], fontSize: 14),
+                                        hintStyle: TextStyle(
+                                            fontFamily: 'TenorSans',
+                                            color: Colors.grey[400],
+                                            fontSize: 14),
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(30.0), // Set radius for the border
+                                          borderRadius: BorderRadius.circular(
+                                              30.0), // Set radius for the border
                                           borderSide: BorderSide(
-                                            color: Colors.grey, // Lighter border color
+                                            color: Colors
+                                                .grey, // Lighter border color
                                           ),
                                         ),
-
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(30.0), // Same radius when enabled
-                                          borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)), // Border color when enabled
+                                          borderRadius: BorderRadius.circular(
+                                              30.0), // Same radius when enabled
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.withOpacity(
+                                                  0.5)), // Border color when enabled
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(30.0), // Same radius when focused
-                                          borderSide: BorderSide(color: Colors.grey), // Same color when focused
+                                          borderRadius: BorderRadius.circular(
+                                              30.0), // Same radius when focused
+                                          borderSide: BorderSide(
+                                              color: Colors
+                                                  .grey), // Same color when focused
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height: 20), // Space before the button
+                                    SizedBox(
+                                        height: 20), // Space before the button
                                     Center(
                                       child: ElevatedButton(
                                         onPressed: () {
                                           // Add your action here when the button is pressed
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Color(0xFFE47F46), // Button color
-                                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16), // Add padding for height and width
-                                          minimumSize: Size(399, 59), // Set the fixed width and height
+                                          backgroundColor:
+                                              Color(0xFFE47F46), // Button color
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 12,
+                                              horizontal:
+                                                  16), // Add padding for height and width
+                                          minimumSize: Size(399,
+                                              59), // Set the fixed width and height
                                         ),
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space between text and icon
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .spaceBetween, // Space between text and icon
                                           children: [
-                                            Expanded( // Use Expanded to take up available space
+                                            Expanded(
+                                              // Use Expanded to take up available space
                                               child: Text(
                                                 'ADD',
-                                                textAlign: TextAlign.left, // Align text to the left
+                                                textAlign: TextAlign
+                                                    .left, // Align text to the left
                                                 style: TextStyle(
-                                                  fontFamily: 'Outfit_Variable_wght',
-                                                  color: Colors.white, // Text color
+                                                  fontFamily:
+                                                      'Outfit_Variable_wght',
+                                                  color: Colors
+                                                      .white, // Text color
                                                   fontSize: 16, // Font size
                                                 ),
                                               ),
                                             ),
                                             SvgPicture.asset(
                                               'assets/icons/white Vector.svg', // Update with your SVG path
-                                              height: 24, // Adjust height as needed
-                                              width: 24, // Adjust width as needed
+                                              height:
+                                                  24, // Adjust height as needed
+                                              width:
+                                                  24, // Adjust width as needed
                                             ),
                                           ],
                                         ),
                                       ),
                                     ),
-
 
 // Add other widgets here, buttons, etc.
                                   ],
@@ -766,8 +887,6 @@ class _AddProduct2State extends State<AddProduct2>
                             },
                           );
                         },
-
-
                         child: SvgPicture.asset(
                           'assets/icons/Vector.svg', // Update with your SVG path
                           width: width * 0.015, // Adjust width for icon
@@ -777,63 +896,81 @@ class _AddProduct2State extends State<AddProduct2>
                     ],
                   ),
 
-                  SizedBox(height:height * 0.020),
+                  SizedBox(height: height * 0.020),
                   Text(
                     'Barcode',
                     style: TextStyle(fontSize: 20),
                   ),
-                  SizedBox(height:height * 0.010),
+                  SizedBox(height: height * 0.010),
                   TextField(
-                    controller:BarcodeController, // Controller for dress titleController,
+                    controller:
+                        BarcodeController, // Controller for dress titleController,
                     decoration: InputDecoration(
                       hintText: 'Barcode',
-                      hintStyle: TextStyle(fontFamily: 'TenorSans', color: Colors.grey[400], fontSize: 14),
+                      hintStyle: TextStyle(
+                          fontFamily: 'TenorSans',
+                          color: Colors.grey[400],
+                          fontSize: 14),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Set radius for the border
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Set radius for the border
                         borderSide: BorderSide(
                           color: Colors.grey, // Lighter border color
                         ),
                       ),
-
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when enabled
-                        borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)), // Border color when enabled
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when enabled
+                        borderSide: BorderSide(
+                            color: Colors.grey
+                                .withOpacity(0.5)), // Border color when enabled
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when focused
-                        borderSide: BorderSide(color: Colors.grey), // Same color when focused
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when focused
+                        borderSide: BorderSide(
+                            color: Colors.grey), // Same color when focused
                       ),
                     ),
                   ),
-                  SizedBox(height:height * 0.030),
+                  SizedBox(height: height * 0.030),
                   Text(
                     'Event',
                     style: TextStyle(fontSize: 20),
                   ),
-                  SizedBox(height:height * 0.010),
+                  SizedBox(height: height * 0.010),
                   TextField(
-                    controller: EventController, // Controller for dress titleController,
+                    controller:
+                        EventController, // Controller for dress titleController,
                     decoration: InputDecoration(
                       hintText: 'Event',
-                      hintStyle: TextStyle(fontFamily: 'TenorSans', color: Colors.grey[400], fontSize: 14),
+                      hintStyle: TextStyle(
+                          fontFamily: 'TenorSans',
+                          color: Colors.grey[400],
+                          fontSize: 14),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Set radius for the border
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Set radius for the border
                         borderSide: BorderSide(
                           color: Colors.grey, // Lighter border color
                         ),
                       ),
-
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when enabled
-                        borderSide: BorderSide(color: Colors.grey.withOpacity(0.5)), // Border color when enabled
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when enabled
+                        borderSide: BorderSide(
+                            color: Colors.grey
+                                .withOpacity(0.5)), // Border color when enabled
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Same radius when focused
-                        borderSide: BorderSide(color: Colors.grey), // Same color when focused
+                        borderRadius: BorderRadius.circular(
+                            30.0), // Same radius when focused
+                        borderSide: BorderSide(
+                            color: Colors.grey), // Same color when focused
                       ),
                     ),
                   ),
-                  SizedBox(height:height * 0.030),
+                  SizedBox(height: height * 0.030),
                   // Date Picker
                   const Text("Event Date"),
                   TextFormField(
@@ -859,32 +996,36 @@ class _AddProduct2State extends State<AddProduct2>
                     },
                   ),
 
-
-                  SizedBox(height:height * 0.030),
+                  SizedBox(height: height * 0.030),
                   //// Submit button to submit the product details
                   ElevatedButton(
                     onPressed: () {
                       _submitData(); // Call your submit data function
-
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment
-                          .spaceAround, // Space between the text and icon
+                          .spaceAround, // Space between text and icon
                       children: [
                         Expanded(
                           child: Text(
-                            ' NEXT', // Button label
+                            'NEXT', // Button label
                             textAlign: TextAlign.start,
-                            style: TextStyle(fontFamily: 'Outfit_Variable_wght',fontSize: 20),
-                            // Align text to the left
+                            style: TextStyle(
+                              fontFamily: 'Outfit_Variable_wght',
+                              fontSize: 20,
+                            ),
                           ),
-
                         ),
-
+                        SvgPicture.asset(
+                          'assets/icons/arrow_icon.svg', // Path to your SVG file
+                          height: 20, // Adjust size as needed
+                          width: 20,
+                        ),
                       ],
                     ),
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 18, horizontal: 18),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 18, horizontal: 18),
                       backgroundColor: Color(0xFFE47F46),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
@@ -892,10 +1033,8 @@ class _AddProduct2State extends State<AddProduct2>
                       ),
                     ),
                   ),
-
                 ],
               )
-
             ],
           ),
         ),
@@ -903,4 +1042,3 @@ class _AddProduct2State extends State<AddProduct2>
     );
   }
 }
-

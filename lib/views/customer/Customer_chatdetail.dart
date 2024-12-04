@@ -1,184 +1,250 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'Report.dart';
+import '../../models/messages_model.dart';
+import '../designer_report.dart';
 
-
-class CustomerChatDetail extends StatelessWidget {
-  final String name;
+class ChatScreen extends StatefulWidget {
   final String chatRoomId;
+  final String designerId;
+  final String SenderId;
 
-  const CustomerChatDetail({Key? key, required this.name, required this.chatRoomId}) : super(key: key);
+  const ChatScreen({
+    Key? key,
+    required this.chatRoomId,
+    required this.designerId,
+    required this.SenderId,
+  }) : super(key: key);
+
+  @override
+  _ChatScreenState createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final TextEditingController _messageController = TextEditingController();
+
+  Future<void> _sendMessage(
+      String text, String receiverId, String senderId) async {
+    if (text.trim().isEmpty) return;
+
+    try {
+      MessageModel newMessage = MessageModel(
+        text: text,
+        sender: senderId,
+        receiver: receiverId,
+        sentOn: DateTime.now(),
+        isRead: false,
+      );
+
+      await FirebaseFirestore.instance
+          .collection('chatrooms')
+          .doc(widget.chatRoomId)
+          .collection('messages')
+          .add(newMessage.toMap());
+
+      await FirebaseFirestore.instance
+          .collection('chatrooms')
+          .doc(widget.chatRoomId)
+          .update({
+        'lastMessage': text,
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'lastMessageSender': senderId,
+        'lastMessageReceiver': receiverId,
+      });
+
+      _messageController.clear();
+    } catch (e) {
+      print("Error sending message: $e");
+    }
+  }
+
+  Future<void> _reportMessage(String messageId, String messageText) async {
+    try {
+      await FirebaseFirestore.instance.collection('reports').add({
+        'messageId': messageId,
+        'messageText': messageText,
+        'reportedBy': widget.SenderId,
+        'reportedAt': FieldValue.serverTimestamp(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Message reported successfully')),
+      );
+    } catch (e) {
+      print("Error reporting message: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(name),
-      ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('chatrooms')
-            .doc(chatRoomId)
-            .collection('messages')
-            .orderBy('timestamp')
-            .snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-          var messages = snapshot.data!.docs;
-          return ListView.builder(
-            itemCount: messages.length,
-            itemBuilder: (context, index) {
-              var message = messages[index];
-              return ListTile(
-                title: Text(message['message']),
-                subtitle: Text(message['sender']),
-              );
-            },
-          );
-        },
-      ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(hintText: "Enter message"),
-                onSubmitted: (text) {
-                  FirebaseFirestore.instance
-                      .collection('chatrooms')
-                      .doc(chatRoomId)
-                      .collection('messages')
-                      .add({
-                    'message': text,
-                    'sender': "currentUserId", // Replace with actual user ID
-                    'timestamp': FieldValue.serverTimestamp(),
-                  });
-                },
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.send),
-              onPressed: () {
-                // Add send functionality here, if required
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ChatBubble extends StatelessWidget {
-  final String text;
-  final bool isSentByUser;
-  final String? sender;
-  final String? receiver;
-
-  ChatBubble({
-    required this.text,
-    required this.isSentByUser,
-    this.sender,
-    this.receiver,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Row(
-        mainAxisAlignment:
-        isSentByUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onLongPress: () {
-              _showReportMenu(context);
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: isSentByUser ? Color(0xFFE47F46) : Colors.grey.shade200,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(15),
-                  topRight: Radius.circular(15),
-                  bottomLeft: isSentByUser ? Radius.circular(15) : Radius.zero,
-                  bottomRight: isSentByUser ? Radius.zero : Radius.circular(15),
-                ),
-              ),
-              padding: EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        title: FutureBuilder<DocumentSnapshot>(
+          future: FirebaseFirestore.instance
+              .collection('users')
+              .doc(widget.designerId)
+              .get(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Row(
                 children: [
-                  if (!isSentByUser && sender != null)
-                    Text(
-                      sender!,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade600,
-                        fontSize: 12,
-                      ),
-                    ),
-                  if (isSentByUser && receiver != null)
-                    Text(
-                      receiver!,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade600,
-                        fontSize: 12,
-                      ),
-                    ),
+                  CircleAvatar(
+                    backgroundImage:
+                    NetworkImage('https://via.placeholder.com/150'),
+                    radius: 20,
+                  ),
+                  SizedBox(width: 10),
                   Text(
-                    text,
-                    style: TextStyle(
-                      color: isSentByUser ? Colors.white : Colors.black,
-                      fontSize: 15,
-                    ),
-                    maxLines: 2,
+                    "Loading...",
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
-              ),
+              );
+            }
+
+            final userData = snapshot.data!.data() as Map<String, dynamic>?;
+
+            return Row(
+              children: [
+                CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    userData?['profileImage'] ??
+                        'https://via.placeholder.com/150',
+                  ),
+                  radius: 20,
+                ),
+                SizedBox(width: 10),
+                Text(
+                  userData?['fullName'] ?? 'Unknown',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            );
+          },
+        ),
+        backgroundColor: Color(0xFFE47F46),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('chatrooms')
+                  .doc(widget.chatRoomId)
+                  .collection('messages')
+                  .orderBy('sentOn', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                List<QueryDocumentSnapshot> docs = snapshot.data!.docs;
+
+                return ListView.builder(
+                  reverse: true,
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    var messageData = docs[index].data() as Map<String, dynamic>;
+                    bool isCurrentUser = messageData['sender'] == widget.SenderId;
+
+                    return Align(
+                      alignment: isCurrentUser
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Builder(
+                        builder: (messageContext) => GestureDetector(
+                          onLongPress: () async {
+                            // Get the position of the message widget
+                            final RenderBox renderBox = messageContext.findRenderObject() as RenderBox;
+                            final Offset offset = renderBox.localToGlobal(Offset.zero);
+                            final Size size = renderBox.size;
+
+                            final result = await showMenu(
+                              context: context,
+                              position: RelativeRect.fromLTRB(
+                                offset.dx,
+                                offset.dy - size.height,
+                                MediaQuery.of(context).size.width - offset.dx - size.width,
+                                MediaQuery.of(context).size.height - offset.dy,
+                              ),
+                              items: [
+                                PopupMenuItem(
+                                  value: 'report',
+                                  child: Row(
+                                    children: [
+                                      Text('Report'),
+                                      SizedBox(width: 5),
+                                      Icon(Icons.flag, color: Colors.red),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+
+                            if (result == 'report') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DesignerReport(
+                                    messageText: messageData['text'],
+                                    senderName: messageData['sender'], // Assuming sender is the sender's name
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+
+                          child: Container(
+                            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isCurrentUser
+                                  ? Colors.orange[300]
+                                  : Colors.grey[300],
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Text(messageData['text']),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      hintText: "Type a message...",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8),
+                IconButton(
+                  icon: Icon(Icons.send, color: Color(0xFFE47F46)),
+                  onPressed: () {
+                    _sendMessage(
+                        _messageController.text,
+                        widget.designerId,
+                        widget.SenderId);
+                  },
+                ),
+              ],
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showReportMenu(BuildContext context) {
-    final RenderBox overlay =
-    Overlay.of(context)!.context.findRenderObject() as RenderBox;
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
-    final Offset offset = renderBox.localToGlobal(Offset.zero, ancestor: overlay);
-
-    showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        offset.dx + 10, // Add an offset for better visibility
-        offset.dy + 10, // Add an offset for better visibility
-        overlay.size.width - offset.dx - 10, // Right edge
-        overlay.size.height - offset.dy - 10, // Bottom edge
-      ),
-      items: [
-        PopupMenuItem(
-          value: 'report',
-          child: Text('Report'),
-        ),
-      ],
-    ).then((value) {
-      if (value == 'report') {
-        _handleReportAction(context);
-      }
-    });
-  }
-
-  void _handleReportAction(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Report(),
       ),
     );
   }

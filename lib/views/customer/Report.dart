@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // Import flutter_svg
+import 'package:flutter_svg/flutter_svg.dart';
+
+import '../Notification_services.dart'; // Import flutter_svg
 
 class Report extends StatefulWidget {
   @override
@@ -7,7 +10,7 @@ class Report extends StatefulWidget {
 }
 
 class _ReportState extends State<Report> {
-  // Dummy sender name; you can set it dynamically
+  final NotificationServices _notificationServices = NotificationServices();
   final String name = "Brooke";
 
   // Controller for the description TextField
@@ -106,9 +109,24 @@ class _ReportState extends State<Report> {
               Row(
                 children: [
                   ElevatedButton(
-                    onPressed: () {
-                      // Add your onPressed logic here
+                    onPressed: () async {
+                      String? adminToken = await getAdminDeviceToken();
+
+                      if (adminToken != null) {
+                        _notificationServices.sendPushNotification(
+                          "admin",
+                          adminToken,
+                          "A new report has been submitted. Tap to view.",
+                          "admin",
+                          "report",
+                          "",
+                          "",
+                        );
+                      } else {
+                        print("Admin token not found");
+                      }
                     },
+
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFC60D06), // Button background color
                       shape: RoundedRectangleBorder(
@@ -145,6 +163,17 @@ class _ReportState extends State<Report> {
         ),
       ),
     );
+  }
+  Future<String?> getAdminDeviceToken() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('role', isEqualTo: 'admin') // Adjust 'role' as per your database schema
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      return querySnapshot.docs.first['deviceToken']; // Get the token from the first admin
+    }
+    return null; // Return null if no admin found
   }
 }
 

@@ -8,6 +8,8 @@ class edit_controller extends ChangeNotifier {
   String description = '';
   double price = 0.0;
   int minimumOrderQuantity = 0;
+  String instagram = '';
+  String linkedin = '';
   List<Color> colorsList = [Colors.red, Colors.green, Colors.blue]; // Example colors
   List<String> sizesList = ['S', 'M', 'L']; // Example sizes
   String photographerImageUrl = '';
@@ -34,6 +36,8 @@ class edit_controller extends ChangeNotifier {
         description = data['projectDescription'] ?? '';
         price = double.tryParse(data['price'].toString()) ?? 0.0;
         minimumOrderQuantity = int.tryParse(data['minimumorder'].toString()) ?? 0;
+        instagram = data['instagram'] ?? '';
+        linkedin = data['linkedin'] ?? '';
         imageList = List<String>.from(data['image'] ?? []);
         colorsList = (data['Colors'] as List)
             .map((color) => Color(int.parse(color, radix: 16)))

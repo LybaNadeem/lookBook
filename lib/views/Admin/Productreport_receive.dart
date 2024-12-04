@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../components/dot.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class ProductReportPage extends StatelessWidget {
+class ProductReportReceived extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

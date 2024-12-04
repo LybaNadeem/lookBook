@@ -209,8 +209,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     Center(
                       child: ElevatedButton(
                         onPressed: () async {
-
                           try {
+                            // Sign in the user
                             UserCredential userCredential = await _auth.signInWithEmailAndPassword(
                               email: _emailController.text.trim(),
                               password: _passwordController.text.trim(),
@@ -228,7 +228,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                 await userDoc.set({
                                   'deviceToken': deviceToken,
-                                  // Add the default 'block' field
                                 }, SetOptions(merge: true)); // Use merge to avoid overwriting existing fields
                               }
 
@@ -285,9 +284,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                   } else if (role == 'Customer') {
                                     Navigator.pushReplacement(
                                       context,
-                                      MaterialPageRoute(builder: (context) => CustomerHomePage()),
+                                      MaterialPageRoute(builder: (context) => CustomerHomePage(productId: null)),
                                     );
                                   } else if (role == 'admin') {
+                                    // Save userId to admin document
+                                    await FirebaseFirestore.instance.collection('admin').doc(user.uid).set({
+                                      'userId': user.uid,
+                                    }, SetOptions(merge: true)); // Use merge to avoid overwriting existing fields
+
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(builder: (context) => AdminDashboard()),
@@ -304,6 +308,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             print("Login failed: $e");
                           }
                         },
+
 
 
 
@@ -395,7 +400,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 30),
                     Center(
                       child: SvgPicture.asset(
                         'assets/icons/google and apple_icon.svg',
@@ -499,12 +504,23 @@ class _LoginScreenState extends State<LoginScreen> {
                             horizontal: 140.0,
                           ),
                         ),
-                        child: const Text(
-                          'Continue',
-                          style: TextStyle(
-                            fontFamily: 'TenorSans',
-                            fontSize: 16,
-                          ),
+                        child:Row(
+                          // Keeps the Row compact
+                          children: [
+                            Text(
+                              'Continue',
+                              style: TextStyle(
+                                fontFamily: 'TenorSans',
+                                fontSize: 16,
+                              ),
+                            ),
+                           SizedBox(width: 8), // Adds space between text and icon
+                            SvgPicture.asset(
+                              'assets/icons/arrow_icon.svg', // Path to your SVG arrow icon
+                              height: 10, // Icon size
+                              width: 10,
+                            ),
+                          ],
                         ),
                       ),
                     ],

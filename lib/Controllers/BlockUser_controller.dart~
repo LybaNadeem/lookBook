@@ -1,0 +1,42 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class BlockUserController {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<List<Map<String, dynamic>>> fetchBlockedUsers(String currentUserId) async {
+    try {
+      // Fetch the current user's role
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(currentUserId).get();
+
+      if (!userDoc.exists) {
+        throw Exception("User not found");
+      }
+
+      String role = userDoc.get('role'); // Assuming 'role' field exists in the user's document.
+
+      // Check if the user is an admin (or any specific role logic you want to implement)
+      if (role != 'designer') {
+        throw Exception("You do not have permission to view blocked users");
+      }
+
+      // Query to fetch users with 'block' field set to true
+      QuerySnapshot blockedUsersSnapshot = await _firestore
+          .collection('users')
+          .where('block', isEqualTo: true)
+          .get();
+
+      // Map the results into a list
+      List<Map<String, dynamic>> blockedUsers = blockedUsersSnapshot.docs.map((doc) {
+        return {
+          'id': doc.id,
+          ...doc.data() as Map<String, dynamic>,
+        };
+      }).toList();
+
+      return blockedUsers;
+    } catch (e) {
+      print("Error fetching blocked users: $e");
+      throw Exception("Failed to fetch blocked users");
+    }
+  }
+}

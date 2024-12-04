@@ -209,8 +209,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     Center(
                       child: ElevatedButton(
                         onPressed: () async {
-
                           try {
+                            // Sign in the user
                             UserCredential userCredential = await _auth.signInWithEmailAndPassword(
                               email: _emailController.text.trim(),
                               password: _passwordController.text.trim(),
@@ -228,7 +228,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                 await userDoc.set({
                                   'deviceToken': deviceToken,
-                                  // Add the default 'block' field
                                 }, SetOptions(merge: true)); // Use merge to avoid overwriting existing fields
                               }
 
@@ -285,9 +284,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                   } else if (role == 'Customer') {
                                     Navigator.pushReplacement(
                                       context,
-                                      MaterialPageRoute(builder: (context) => CustomerHomePage()),
+                                      MaterialPageRoute(builder: (context) => CustomerHomePage(productId: null)),
                                     );
                                   } else if (role == 'admin') {
+                                    // Save userId to admin document
+                                    await FirebaseFirestore.instance.collection('admin').doc(user.uid).set({
+                                      'userId': user.uid,
+                                    }, SetOptions(merge: true)); // Use merge to avoid overwriting existing fields
+
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(builder: (context) => AdminDashboard()),
@@ -304,6 +308,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             print("Login failed: $e");
                           }
                         },
+
 
 
 
@@ -499,12 +504,19 @@ class _LoginScreenState extends State<LoginScreen> {
                             horizontal: 140.0,
                           ),
                         ),
-                        child: const Text(
-                          'Continue',
-                          style: TextStyle(
-                            fontFamily: 'TenorSans',
-                            fontSize: 16,
-                          ),
+                        child:Row(
+                          // Keeps the Row compact
+                          children: [
+                            Text(
+                              'Continue',
+                              style: TextStyle(
+                                fontFamily: 'TenorSans',
+                                fontSize: 16,
+                              ),
+                            ),
+                         // Adds space between text and icon
+
+                          ],
                         ),
                       ),
                     ],

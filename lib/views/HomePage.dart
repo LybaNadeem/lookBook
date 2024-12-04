@@ -6,57 +6,37 @@ import '../Controllers/Homepage_controller.dart';
 import 'Add_product1.dart';
 import 'Designer_notification.dart';
 import 'Logout.dart';
-import 'MessageApp.dart';
-import 'Notification_services.dart';
+import 'DesignerMessage_screen.dart';
+import 'ProductDetail_Designer.dart';
 import 'ProductPreview.dart';
 import 'ProfileScreen.dart';
 
 class HomePage extends StatefulWidget {
   var productId;
-
   HomePage({Key? key, required this.productId}) : super(key: key);
   @override
   _HomePageState createState() => _HomePageState();
 }
-
 class _HomePageState extends State<HomePage> {
-  NotificationServices notificationServices = NotificationServices();
   int _currentIndex = 0;
-
   @override
   void initState() {
     super.initState();
     _fetchUserProducts();
-    notificationServices.requestNotificationPermission();
-    notificationServices.forgroundMessage();
-    notificationServices.firebaseInit(context);
-    notificationServices.setupInteractMessage(context);
-    notificationServices.isTokenRefresh();
-
-    notificationServices.getDeviceToken().then((value){
-      if (kDebugMode) {
-        print('device token');
-        print(value);
-      }
-    });
   }
-
-  // Fetch products created by the current user
   void _fetchUserProducts() {
     Provider.of<HomepageController>(context, listen: false).getUserProducts();
   }
-
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
     });
-
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MessagesApp(id: '')),
+        MaterialPageRoute(builder: (context) => MessagesPage(currentUserId: '',)),
       );
-    } else if (index == 2) { // Assuming index 2 is for DesignerNotification
+    } else if (index == 2) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => DesignerNotification()),
@@ -68,8 +48,6 @@ class _HomePageState extends State<HomePage> {
       );
     }
   }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,9 +95,11 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProductPreviewStateful(
-                            productId: product['productId'], photgrapherId: ['photgrapherId'], // Pass specific product ID if needed
-                          ),
+                          builder: (context) => ProductdetailDesigner(
+                            productId: product['productId'],
+                            photographerId: product['photographerId'],
+
+                          )
                         ),
                       );
                     },
@@ -139,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                               child: Image.network(
                                 product['imageList'].isNotEmpty ? product['imageList'][0] : '',
-                                fit: BoxFit.cover,
+                                fit: BoxFit.fill,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Icon(Icons.error);
                                 },
@@ -212,7 +192,7 @@ class _HomePageState extends State<HomePage> {
         items: [
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
-              'assets/icons/Home.svg',
+              'assets/icons/home-2.svg',
               width: 24,
               height: 15,
             ),

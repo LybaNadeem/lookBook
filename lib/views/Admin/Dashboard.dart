@@ -1,10 +1,10 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:untitled/views/Admin/Block_page.dart';
-
 import '../Logout.dart';
-import '../MessageApp.dart';
-import '../customer/customer profile.dart';
+import '../DesignerMessage_screen.dart';
+import '../Notification_services.dart';
 import 'Converstaions.dart';
 import 'Customer_page.dart';
 import 'Designer_Page.dart';
@@ -17,6 +17,62 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  @override
+  void initState() {
+    super.initState();
+    setupNotifications();
+  }
+
+  void setupNotifications() async {
+    // Request permission for iOS
+    NotificationSettings settings = await _firebaseMessaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted permission');
+    } else {
+      print('User declined or has not accepted permission');
+    }
+
+    // Get device token for testing
+    String? token = await _firebaseMessaging.getToken();
+    print('FCM Token: $token'); // Use this token to send test notifications from Firebase console
+
+    // Listen for foreground messages
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('Received a notification in foreground: ${message.notification?.title}');
+      showNotificationDialog(message);
+    });
+
+    // Listen for background and terminated notifications
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('Notification opened: ${message.notification?.title}');
+      // Navigate or perform actions based on notification
+    });
+  }
+
+  void showNotificationDialog(RemoteMessage message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(message.notification?.title ?? 'Notification'),
+          content: Text(message.notification?.body ?? 'You have a new message.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   final List<Map<String, dynamic>> dashboardItems = [
     {'title': 'Designers', 'iconPath': 'assets/icons/Admin_designer.svg'},
     {'title': 'Customers', 'iconPath': 'assets/icons/Admin_customer.svg'},
@@ -33,28 +89,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
       _currentIndex = index;
     });
 
-    if (index == 3) {
-      // Navigate to the ReportPage and trigger a notification
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => ReportPage()),
-      );
+    switch (index) {
+      case 3:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ReportPage()),
+        );
+        break;
 
-    } else if (index == 1) {
-      // Navigate to MessagesApp
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MessagesApp(id: ''), // Pass appropriate ID
-        ),
-      );
-    } else {
-      print("Other tab selected: $index");
+      default:
+        print("Other tab selected: $index");
     }
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +131,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
             fontWeight: FontWeight.bold,
           ),
         ),
-
       ),
       body: Padding(
         padding: EdgeInsets.all(padding),
@@ -93,13 +138,25 @@ class _AdminDashboardState extends State<AdminDashboard> {
           children: [
             Padding(
               padding: EdgeInsets.symmetric(vertical: 10.0),
-              child: Text(
-                'Admin Dashboard',
-                style: TextStyle(
-                  fontFamily: 'TenorSans',
-                  fontSize: 24,
-                ),
-              ),
+               child:  Column(
+                  mainAxisAlignment: MainAxisAlignment.center, // Align content vertically
+                  crossAxisAlignment: CrossAxisAlignment.center, // Align content horizontally
+                  children: [
+                    Text(
+                      'Admin Dashboard',
+                      style: TextStyle(
+                        fontFamily: 'TenorSans',
+                        fontSize: 24,
+                      ),
+                    ),
+
+                    SvgPicture.asset(
+                      'assets/icons/3.svg', // Path to your SVG icon
+                      height: 15,  // Set height of the icon
+                      width: 25,   // Set width of the icon
+                    ),
+                  ],
+                )
             ),
             Expanded(
               child: ListView.builder(
@@ -107,7 +164,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 itemBuilder: (context, index) {
                   return Container(
                     color: Colors.grey[50],
-                    margin: EdgeInsets.symmetric(vertical: 5,horizontal: 10),
+                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     padding: EdgeInsets.symmetric(vertical: 5),
                     child: Container(
                       margin: EdgeInsets.symmetric(vertical: 5),
@@ -131,16 +188,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         elevation: 0,
                         color: Colors.transparent,
                         child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 10),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                           leading: dashboardItems[index]['iconPath'] != null
                               ? SvgPicture.asset(
                             dashboardItems[index]['iconPath'],
                             width: 60,
                             height: 60,
                           )
-                              : Icon(Icons.image_not_supported,
-                              size: 40, color: Colors.grey),
+                              : Icon(Icons.image_not_supported, size: 40, color: Colors.grey),
                           title: Text(
                             dashboardItems[index]['title'] ?? 'Unknown',
                             style: const TextStyle(
@@ -156,38 +211,32 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             if (index == 0) {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => DesignersPage()),
+                                MaterialPageRoute(builder: (context) => DesignersPage()),
                               );
                             } else if (index == 1) {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => CustomerPage()),
+                                MaterialPageRoute(builder: (context) => CustomerPage()),
                               );
                             } else if (index == 2) {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => ProductPage()),
+                                MaterialPageRoute(builder: (context) => ProductPage()),
                               );
                             } else if (index == 3) {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => ReportPage()),
+                                MaterialPageRoute(builder: (context) => ReportPage()),
                               );
                             } else if (index == 4) {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => Converstaions()),
+                                MaterialPageRoute(builder: (context) => Converstaions()),
                               );
                             } else if (index == 5) {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => BlockPage()),
+                                MaterialPageRoute(builder: (context) => BlockPage()),
                               );
                             }
                           },
@@ -209,20 +258,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
         items: [
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
-              'assets/icons/Home.svg',
+              'assets/icons/home-2.svg',
               width: 24,
               height: 24,
             ),
             label: 'Home',
           ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              'assets/icons/chat.svg',
-              width: 24,
-              height: 24,
-            ),
-            label: 'Chat',
-          ),
+
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
               'assets/icons/notification-bing.svg',
@@ -231,19 +273,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             label: 'Notification',
           ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              'assets/icons/profile.svg',
-              width: 24,
-              height: 24,
-            ),
-            label: 'Profile',
-          ),
+
         ],
       ),
     );
   }
 }
-
-
-

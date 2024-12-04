@@ -181,7 +181,7 @@ class _MissInformationScreenState extends State<MissInformationScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(width: 8), // Space between text and icon
+                      SizedBox(width: 178), // Space between text and icon
                       SvgPicture.asset(
                         'assets/icons/arrow_icon.svg', // Path to your SVG
                         width: 16, // Set width of the icon

@@ -41,14 +41,14 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
 
       // Step 2: Get the current user's document
       final DocumentReference userDocRef =
-      firestore.collection('users').doc(userId);
+          firestore.collection('users').doc(userId);
 
       final DocumentSnapshot userDocSnapshot = await userDocRef.get();
 
       // Step 3: Check if the `wishlist` field exists
       if (userDocSnapshot.exists) {
         Map<String, dynamic> userData =
-        userDocSnapshot.data() as Map<String, dynamic>;
+            userDocSnapshot.data() as Map<String, dynamic>;
 
         if (userData.containsKey('wishlist')) {
           // If the wishlist exists, update it by adding the product ID if not already added
@@ -62,18 +62,23 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
           }
         } else {
           // If the wishlist field doesn't exist, create it and add the product ID
-          await userDocRef.update({'wishlist': [productId]});
+          await userDocRef.update({
+            'wishlist': [productId]
+          });
           print("Wishlist created and product added.");
         }
       } else {
         // If the user document doesn't exist (unlikely, but for safety)
-        await userDocRef.set({'wishlist': [productId]});
+        await userDocRef.set({
+          'wishlist': [productId]
+        });
         print("User document created with wishlist and product added.");
       }
     } catch (e) {
       print("Error adding product to wishlist: $e");
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,37 +89,33 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
       body: Stack(
         children: [
           MobileScanner(
-          onDetect: (BarcodeCapture capture) async {
-    final List<Barcode> barcodes = capture.barcodes;
-    if (barcodes.isNotEmpty && !_isNavigating) {
-    final String? code = barcodes.first.rawValue;
-    if (code != null) {
-    print('Scanned Code: $code');
-    setState(() {
-    _isNavigating = true; // Set the flag to true
-    });
+            onDetect: (BarcodeCapture capture) async {
+              final List<Barcode> barcodes = capture.barcodes;
+              if (barcodes.isNotEmpty && !_isNavigating) {
+                final String? code = barcodes.first.rawValue;
+                if (code != null) {
+                  print('Scanned Code: $code');
+                  setState(() {
+                    _isNavigating = true; // Set the flag to true
+                  });
 
-    // Fetch product details using the barcode
-    await _addProductToWishlistByBarcode(code);
+                  // Fetch product details using the barcode
+                  await _addProductToWishlistByBarcode(code);
 
-    // Navigate to CustomerHomePage with the scanned code (optional)
-    Navigator.pushAndRemoveUntil(
-    context,
-    MaterialPageRoute(
-    builder: (context) => CustomerHomePage(),
-    ),
-    (route) => false, // Clear previous routes
-    );
-    } else {
-    print('No valid barcode detected.');
-    }
-    }
-    },
-    ),
-
-
-
-
+                  // Navigate to CustomerHomePage with the scanned code (optional)
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CustomerHomePage(productId: null,),
+                    ),
+                    (route) => false, // Clear previous routes
+                  );
+                } else {
+                  print('No valid barcode detected.');
+                }
+              }
+            },
+          ),
 
           // Optional: Add an SVG or overlay for visual guidance
           Positioned(
@@ -134,5 +135,4 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
     );
   }
   //
-
 }

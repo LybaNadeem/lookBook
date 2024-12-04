@@ -1,19 +1,21 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../Controllers/product_previewcontroller.dart';
-import '../components/CustomButton.dart';
+
 import 'Edit.dart';
+import 'HomePage.dart';
+import 'PhotographerEditer_screen.dart';
 
 class ProductPreviewStateful extends StatefulWidget {
   var productId;
-  var photgrapherId;
+  var photographerId;
 
-  ProductPreviewStateful({Key? key, required this.productId, required this.photgrapherId}) : super(key: key);
+  ProductPreviewStateful({Key? key, required this.productId, required this.photographerId}) : super(key: key);
   @override
   _ProductPreviewStatefulState createState() => _ProductPreviewStatefulState();
 }
@@ -30,14 +32,28 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
   String description = '';
   String price = '';
   String minimumOrderQuantity = '';
+  String instagram = '';
+  String linkedin = '';
+  String barcode = '';
+  String photographerImageUrl='';
+  String photographerName = '';
+  String photographerAbout = '';
+  String photographerEmail = '';
+  String photographerPhone = '';
+  String photographerSocialLink = '';
+
 
   @override
   void initState() {
     super.initState();
     getData();
+    // Pass both productId and photographerId
+    getPhotographer(widget.productId,widget.photographerId);
 
-    print('productId${widget.productId}');
+    print('productId: ${widget.productId}');
+    print('photographerId: ${widget.photographerId}');
   }
+
 
   // Function to fetch data from Firebase
   Future<void> getData() async {
@@ -54,13 +70,25 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
         print("projectDescription: ${productData['projectDescription']}");
         print("price: ${productData['price']}");
         print("minimumorder: ${productData['minimumorder']}");
+        print("Colors: ${productData['Colors']}");
+        print("Sizes: ${productData['Sizes']}");
+        print('instagram: ${productData['instagram']}');
+        print('linkedin: ${productData['linkedin']}');
+        print('barcode: ${productData['barcode']}');
 
         setState(() {
           imageList = List<String>.from(productData['image'] ?? []);
           dressTitle = productData['DressTitle'] ?? '';
           description = productData['projectDescription'] ?? '';
-          price = productData['price'] ?? '';
-          minimumOrderQuantity = productData['minimumorder'] ?? '';
+          instagram = productData['instagram'] ?? '';
+          linkedin = productData['linkedin'] ?? '';
+          barcode = productData['barcode'] ?? '';
+
+          // Convert `price` to string
+          price = productData['price']?.toString() ?? '';
+
+          // Convert `minimumorder` to string
+          minimumOrderQuantity = productData['minimumorder']?.toString() ?? '';
 
           // Convert color codes from string to Color
           colorsList = List<String>.from(productData['Colors'] ?? [])
@@ -77,6 +105,49 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
       print("Error getting data: $e");
     }
   }
+
+  Future<Map<String, dynamic>?> getPhotographer(var productId, var photographerId) async {
+    try {
+      print("Fetching photographer data from Firestore...");
+      final photographerDoc = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(productId)
+          .collection('Photographer')
+          .doc(photographerId)
+          .get();
+
+      if (photographerDoc.exists) {
+        print("Photographer data fetched successfully.");
+        // Update the state with the fetched photographer data
+        setState(() {
+          photographerName = photographerDoc.data()?['photographerName'] ?? '';
+          photographerImageUrl = photographerDoc.data()?['imageUrl'] ?? '';
+
+        });
+
+        print("Photographer Name: $photographerName");
+        print("Photographer Image URL: $photographerImageUrl");
+        return photographerDoc.data();
+        // Optionally return data
+      } else {
+        print("No data found for the given photographer ID.");
+        return null;
+      }
+    } catch (e) {
+      print("Error fetching photographer data: $e");
+      return null;
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri)) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+
+
 
 
   @override
@@ -222,38 +293,6 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
                         ),
                       ],
                     ),
-
-                    SizedBox(height: 20),
-
-                    // Photographer Info and Actions
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 25,
-                          backgroundImage: controller.photographerImageUrl.isNotEmpty
-                              ? NetworkImage(controller.photographerImageUrl)
-                              : AssetImage('assets/images/photographer circle.png') as ImageProvider,
-                        ),
-                        SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              controller.photographerName.isNotEmpty
-                                  ? controller.photographerName
-                                  : "Photographer Name",
-                              style: TextStyle(
-                                fontFamily: 'TenorSans',
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                          //  viewButton(context), // Pass the productId to fetch photographer details
-                          ],
-                        ),
-                      ],
-                    ),
-
                     SizedBox(height: 10),
 
                     // Minimum Order Quantity and Buttons
@@ -262,6 +301,120 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
                       style: TextStyle(fontFamily: 'TenorSans', fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () => _launchUrl(instagram),
+                        child: Text(
+                          "Instagram: $instagram",
+                          style: TextStyle(
+                            fontFamily: 'TenorSans',
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFE47F46),
+                            decoration: TextDecoration.underline,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      SizedBox(height: 8), // Space between the two items
+                      GestureDetector(
+                        onTap: () => _launchUrl(linkedin),
+                        child: Text(
+                          "LinkedIn: $linkedin",
+                          style: TextStyle(
+                            fontFamily: 'TenorSans',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+
+
+
+                  SizedBox(height: 8),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+
+                      Row(
+                      children: [
+                      // Circle Avatar
+                      CircleAvatar(
+                      radius: 25,
+                        backgroundImage: photographerImageUrl.isNotEmpty
+                            ? NetworkImage(photographerImageUrl)
+                            : AssetImage('assets/images/photographer circle.png') as ImageProvider,
+                      ),
+                      const SizedBox(width: 10), // Add spacing between avatar and text
+
+                      // Photographer Name
+                      Text(
+                        photographerName,
+                        style: const TextStyle(
+                          fontFamily: 'TenorSans',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16, // Adjust size if needed
+                        ),
+                      ),
+                                          ],
+                                        ),
+
+                  const SizedBox(height: 10),
+
+                          // View Button
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => EditPhotographer(photographerId:widget.photographerId, productId:widget.productId,)));
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFE47F46),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              textStyle: const TextStyle(fontSize: 12),
+                            ),
+                            child:Row(
+                              mainAxisSize: MainAxisSize.min, // Ensures the row wraps its children
+                              children: [
+
+                                // Space between icon and text
+                                const Text(
+                                  "Edit",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                SvgPicture.asset(
+                                  'assets/icons/arrow_icon.svg', // Path to your SVG file
+                                  height: 15, // Set the desired height
+                                  width: 15,  // Set the desired width
+                                ),
+                              ],
+                            ),
+
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 10),
+
+                      // Photographer Name Display
+
+                      const SizedBox(height: 5),
+                    ],
+                  ),
+
+
+                  SizedBox(height: 8),
                     actionButtons(width, isPortrait),
                   ],
                 ),
@@ -316,94 +469,8 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
     );
   }
 
-  Widget viewButton(BuildContext context, String productId) {
-    return InkWell(
-      onTap: () {
-        // Show Bottom Sheet
-        showModalBottomSheet(
-          context: context,
-          builder: (BuildContext context) {
-            // Fetch Photographer Data
-            final controller = context.read<ProductPreviewController>();
-            controller.fetchProductAndPhotographerData(productId);
 
-            return Container(
-              height: 513,
-              width: double.infinity,
-              padding: EdgeInsets.all(16.0),
-              child: Consumer<ProductPreviewController>(
-                builder: (context, controller, child) {
-                  if (controller.isLoading) {
-                    return Center(child: CircularProgressIndicator());
-                  }
 
-                  // Check if photographer data exists
-                  if (controller.photographerName.isEmpty) {
-                    return Center(child: Text('No photographer details available.'));
-                  }
-
-                  // Display Photographer Details
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Photographer Details',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      if (controller.photographerImageUrl.isNotEmpty)
-                        Center(
-                          child: CircleAvatar(
-                            radius: 50,
-                            backgroundImage: NetworkImage(controller.photographerImageUrl),
-                          ),
-                        ),
-                      SizedBox(height: 16),
-                      Text('Name: ${controller.photographerName}'),
-                      SizedBox(height: 8),
-                      Text('Email: ${controller.photographerEmail}'),
-                      SizedBox(height: 8),
-                      Text('Phone: ${controller.photographerPhone}'),
-                      SizedBox(height: 8),
-                      Text('Social Link: ${controller.photographerSocialLink}'),
-                    ],
-                  );
-                },
-              ),
-            );
-          },
-        );
-      },
-      child: Container(
-        height: 30,
-        width: 110,
-        decoration: BoxDecoration(
-          color: Color(0xFFE47F46),
-          borderRadius: BorderRadius.circular(80),
-        ),
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "VIEW",
-              style: TextStyle(
-                fontFamily: 'TenorSans',
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            ),
-            SizedBox(width: 8),
-            SvgPicture.asset('assets/icons/arrow_icon.svg', width: 10, height: 10),
-          ],
-        ),
-      ),
-    );
-  }
 
 
   Widget actionButtons(double width, bool isPortrait) {
@@ -414,7 +481,7 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
           width: width * (isPortrait ? 0.9 : 0.6),
           child: ElevatedButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => Edit(productId: '',)));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Edit(productId:widget.productId,)));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFFE47F46),
@@ -432,10 +499,16 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
         ),
         SizedBox(height: 8),
         Container(
-          height: 80,
+          height: 50,
           width: width * (isPortrait ? 0.9 : 0.6),
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              // Navigate to HomePage
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage(productId: null,)),
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
@@ -445,11 +518,17 @@ class _ProductPreviewStatefulState extends State<ProductPreviewStateful> {
             ),
             child: Text(
               "DONE",
-              style: TextStyle(color: Color(0xFFE47F46), fontWeight: FontWeight.bold, fontSize: 18),
+              style: TextStyle(
+                color: Color(0xFFE47F46),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
             ),
           ),
         ),
+
       ],
     );
   }
+
 }

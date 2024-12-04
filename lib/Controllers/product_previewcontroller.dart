@@ -10,6 +10,9 @@ class ProductPreviewController extends ChangeNotifier {
   int minimumOrderQuantity = 0;
   List<Color> colorsList = [Colors.red, Colors.green, Colors.blue]; // Example colors
   List<String> sizesList = ['S', 'M', 'L']; // Example sizes
+  String instagram = '';
+  String linkedin = '';
+  String barcode = '';
   String photographerImageUrl = '';
   String photographerName = '';
   String photographerAbout = '';
@@ -17,41 +20,11 @@ class ProductPreviewController extends ChangeNotifier {
   String photographerPhone = '';
   String photographerSocialLink = '';
 
-  Future<Map<String, dynamic>> fetchProductAndPhotographerData(var productId) async {
-    try {
-      Map<String, dynamic> result = {};
-      // Fetch the main product document
-      DocumentSnapshot<Map<String, dynamic>> productDoc = await FirebaseFirestore.instance
-          .collection('products')
-          .doc(productId)
-          .get();
-      if (productDoc.exists && productDoc.data() != null) {
-        // Access data in the product document
-        Map<String, dynamic> productData = productDoc.data()!;
-        result['product'] = productData;
-        // Fetch the subcollection "photographer" for this product
-        QuerySnapshot<Map<String, dynamic>> photographerSnapshot = await FirebaseFirestore.instance
-            .collection('products')
-            .doc(productId)
-            .collection('Photographer')
-            .get();
-        List<Map<String, dynamic>> photographerData = [];
-        for (var photographerDoc in photographerSnapshot.docs) {
-          photographerData.add(photographerDoc.data());
-        }
-        result['photographers'] = photographerData;
-      } else {
-        result['error'] = 'Product document does not exist.';
-      }
-      return result;
-    } catch (e) {
-      return {'error':' Error fetching product and photographer data: $e'};
-    }
-  }
+
 
   Future<void> getPhotographer(var productId, var photographerId) async {
     isLoading = true;
-    notifyListeners(); // Notify UI to show loading state
+
 
     try {
       print("Fetching photographer data from Firestore...");
@@ -75,8 +48,7 @@ class ProductPreviewController extends ChangeNotifier {
         photographerPhone = data?['phone'] ?? '';
         photographerSocialLink = data?['socialLink'] ?? '';
 
-        // Notify listeners to update the UI
-        notifyListeners();
+
         print("Photographer fetched and parsed successfully.");
       } else {
         print("Photographer does not exist.");
@@ -85,7 +57,7 @@ class ProductPreviewController extends ChangeNotifier {
       print('Error fetching data: $e');
     } finally {
       isLoading = false;
-      notifyListeners(); // Notify UI that loading is complete
+     // Notify UI that loading is complete
     }
   }
 
@@ -109,6 +81,10 @@ class ProductPreviewController extends ChangeNotifier {
         description = doc['projectDescription'] ?? '';
         price = double.tryParse(doc['price'].toString()) ?? 0.0;
         minimumOrderQuantity = int.tryParse(doc['minimumorder'].toString()) ?? 0;
+
+        instagram = doc['instagram'] ?? '';
+        linkedin = doc['linkedin'] ?? '';
+        barcode = doc['barcode'] ?? '';
 
         // Parsing arrays
         imageList = List<String>.from(doc['image'] ?? []);

@@ -51,4 +51,8 @@ class HomepageController extends ChangeNotifier {
       notifyListeners(); // Notify UI that loading is complete
     }
   }
+  Future<void> addProduct(Map<String, dynamic> product) async {
+    userProducts.add(product);
+    notifyListeners();
+  }
 }

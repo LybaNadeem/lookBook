@@ -11,6 +11,7 @@ import 'ProductPreview.dart';
 class AddPhotographer extends StatefulWidget {
   var productId;
 
+
   AddPhotographer({Key? key, required this.productId}) : super(key: key);
   @override
   _AddPhotographerState createState() => _AddPhotographerState();
@@ -100,6 +101,7 @@ class _AddPhotographerState extends State<AddPhotographer> {
         'phone': phoneController.text,
         'email': emailController.text,
         'userId': currentUser!.uid, // Pass the userId here too
+        'imageUrl': imageUrl, // Save the image URL in photographer data as well
         'timestamp': FieldValue.serverTimestamp(),
       };
 
@@ -108,7 +110,9 @@ class _AddPhotographerState extends State<AddPhotographer> {
       await productDocRef.collection('Photographer').add(photographerData);
 
       // Update the photographer document with its own ID
-      await photographerDocRef.update({'photographerId': photographerDocRef.id});
+      await photographerDocRef.update({
+        'photographerId': photographerDocRef.id, // Store the photographerId inside the document
+      });
 
       print('Photographer added with ID: ${photographerDocRef.id}');
 
@@ -116,7 +120,7 @@ class _AddPhotographerState extends State<AddPhotographer> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ProductPreviewStateful(productId: widget.productId),
+          builder: (context) => ProductPreviewStateful(productId: widget.productId, photographerId: photographerDocRef.id),
         ),
       );
 
@@ -131,6 +135,7 @@ class _AddPhotographerState extends State<AddPhotographer> {
       );
     }
   }
+
 
 
 

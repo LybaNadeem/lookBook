@@ -24,7 +24,7 @@ class _SizeSelectorState extends State<SizeSelector> {
         width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: Colors.grey.shade300, width: 2),
+          border: Border.all(color: Colors.grey.shade300, width: 1),
           color: Colors.white,
         ),
         child: Row(

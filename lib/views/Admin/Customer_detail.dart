@@ -107,42 +107,40 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
               _buildContactInfoSection('Instagram', customerData!['instagram'] ?? '', 'assets/icons/Instagram.svg'),
               SizedBox(height: 20),
               // Button Section
-              Center(
-                child: Container(
-                  width: screenSize.width * 0.4,
-                  height: 42,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _showBlockDialog(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'BLOCK',
-                          style: TextStyle(
-                            fontFamily: 'TenorSans',
-                            fontSize: 14,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(width: 25),
-                        SvgPicture.asset(
-                          'assets/icons/arrow_icon.svg',
-                          width: 10,
-                          height: 10,
-                        ),
-                        SizedBox(width: 4),
-                      ],
+              Container(
+                width: screenSize.width * 0.4,
+                height: 42,
+                child: ElevatedButton(
+                  onPressed: () {
+                    _showBlockDialog(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40),
                     ),
                   ),
+                  child:   Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+
+                  children: [
+                    Text(
+                      'BLOCK',
+                      style: TextStyle(
+                        fontFamily: 'TenorSans',
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 25),
+                    SvgPicture.asset(
+                      'assets/icons/arrow_icon.svg',
+                      width: 10,
+                      height: 10,
+                    ),
+
+                  ],
+                ),
                 ),
               ),
             ],
